@@ -10,6 +10,10 @@ android {
     namespace 'com.pandacat.simplechaserun'
     compileSdk 34
 
+    viewBinding {
+        enabled = true
+    }
+
     defaultConfig {
         applicationId "com.pandacat.simplechaserun"
         minSdk 24
@@ -41,6 +45,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    //nav
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
 
     // Easy Permissions
     implementation 'pub.devrel:easypermissions:3.0.0'

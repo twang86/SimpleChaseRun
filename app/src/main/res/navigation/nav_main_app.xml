@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main_app"
+    app:startDestination="@id/runSessionFragment">
+
+    <fragment
+        android:id="@+id/runSessionFragment"
+        android:name="com.pandacat.simplechaserun.views.RunSessionFragment"
+        android:label="Run Session">
+
+    </fragment>
+
+</navigation>
