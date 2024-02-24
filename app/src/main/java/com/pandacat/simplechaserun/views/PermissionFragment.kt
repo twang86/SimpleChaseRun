@@ -1,9 +1,12 @@
 package com.pandacat.simplechaserun.views
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +16,6 @@ import androidx.navigation.fragment.findNavController
 import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.databinding.FragmentPermissionsBinding
 import com.pandacat.simplechaserun.utils.PermissionUtil
-import pub.devrel.easypermissions.AppSettingsDialog
 
 class PermissionFragment : Fragment()  {
     private val TAG = "PermissionFragment"
@@ -53,8 +55,16 @@ class PermissionFragment : Fragment()  {
                     backgroundPermissionsRequestLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 else
                 {
-                    AppSettingsDialog.Builder(this)
-                        .setTitle(getString(R.string.permission_background_settings)).build().show()
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.permissions_title))
+                        .setMessage(getString(R.string.permission_background_settings))
+                        .setPositiveButton(getString(R.string.ok)){_,_->
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri = Uri.fromParts("package", requireContext().packageName, null)
+                            intent.data = uri
+                            startActivity(intent)}
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .create().show()
                 }
                 bgTries++
             }
