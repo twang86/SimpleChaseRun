@@ -1,9 +1,13 @@
 package com.pandacat.simplechaserun.utils
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.pandacat.simplechaserun.R
@@ -39,5 +43,19 @@ object PermissionUtil {
             context,
             permission
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun showBGAppSettingsDialog(context: Context)
+    {
+        AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.permissions_title))
+            .setMessage(context.getString(R.string.permission_background_settings))
+            .setPositiveButton(context.getString(R.string.ok)){_,_->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", context.packageName, null)
+                intent.data = uri
+                context.startActivity(intent)}
+            .setNegativeButton(context.getString(R.string.cancel), null)
+            .create().show()
     }
 }
