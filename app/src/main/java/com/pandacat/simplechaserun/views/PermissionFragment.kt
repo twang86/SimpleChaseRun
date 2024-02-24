@@ -1,14 +1,18 @@
 package com.pandacat.simplechaserun.views
 
 import android.Manifest
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.databinding.FragmentPermissionsBinding
 import com.pandacat.simplechaserun.utils.PermissionUtil
 
@@ -32,6 +36,23 @@ class PermissionFragment : Fragment()  {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object:
+            OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!PermissionUtil.checkPermissions(PermissionUtil.getPermissionsRequired(), requireContext())) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.permissions_title))
+                        .setMessage(getString(R.string.permissions_quit_message))
+                        .setPositiveButton(getString(R.string.cancel), null)
+                        .setNegativeButton(getString(R.string.ok)){_,_->
+                            findNavController().popBackStack()
+                        }
+                        .create().show()
+                    return
+                }
+            }
+
+        })
         refreshViews()
     }
 

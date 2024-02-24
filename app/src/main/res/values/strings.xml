@@ -4,6 +4,7 @@
     <string name="cancel">Cancel</string>
     <string name="permissions_title">Permissions</string>
     <string name="permissions_message">This app needs Location Permissions to function</string>
+    <string name="permissions_quit_message">Ignore permissions and continue anyway?</string>
     <string name="permissions_location">Location Permissions</string>
     <string name="permission_background">Background Location Permission</string>
     <string name="permission_background_settings">Please allow all-time location access in settings</string>
