@@ -71,7 +71,6 @@ class PermissionFragment : Fragment()  {
 
     override fun onResume() {
         super.onResume()
-        Log.i(TAG, "PermissionFragment: ")
         refreshViews()
         if (PermissionUtil.checkPermissions(PermissionUtil.getPermissionsRequired(), requireContext()))
             findNavController().popBackStack()
