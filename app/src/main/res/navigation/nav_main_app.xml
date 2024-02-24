@@ -4,9 +4,20 @@
     android:id="@+id/nav_main_app"
     app:startDestination="@id/runSessionFragment">
 
+    <action
+        android:id="@+id/globalToPermissions"
+        app:destination="@id/permissionsFragment"/>
+
     <fragment
         android:id="@+id/runSessionFragment"
         android:name="com.pandacat.simplechaserun.views.RunSessionFragment"
+        android:label="Run Session">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/permissionsFragment"
+        android:name="com.pandacat.simplechaserun.views.PermissionFragment"
         android:label="Run Session">
 
     </fragment>

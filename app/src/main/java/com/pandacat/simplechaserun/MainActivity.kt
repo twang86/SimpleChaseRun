@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.pandacat.simplechaserun.databinding.ActivityMainBinding
+import com.pandacat.simplechaserun.utils.PermissionUtil
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -17,5 +18,7 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
+        PermissionUtil.checkPermissionsAndRequest(this, navController)
     }
+
 }
