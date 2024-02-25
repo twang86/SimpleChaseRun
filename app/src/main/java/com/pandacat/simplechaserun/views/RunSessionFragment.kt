@@ -9,7 +9,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.databinding.FragmentRunSessionBinding
+import com.pandacat.simplechaserun.utils.BitmapUtil
 
 class RunSessionFragment : Fragment() {
     private val TAG = "RunSessionFragment"
@@ -26,13 +28,21 @@ class RunSessionFragment : Fragment() {
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync{
             map = it
+
             val options = MarkerOptions()
                 .position(LatLng(39.161607200033515, -77.27608037908082))
                 .title("Test Marker")
-            it.addMarker(options)
+
+            BitmapUtil.getBitmapDescFromVector(requireContext(), R.drawable.ic_directions_run)?.let {icon->
+                options.icon(icon)
+            }
+
+            val marker = it.addMarker(options)
+            marker?.showInfoWindow()
             it.moveCamera(CameraUpdateFactory.newLatLngZoom(options.position, 16.0f))
         }
     }
+
 
     override fun onResume() {
         super.onResume()
