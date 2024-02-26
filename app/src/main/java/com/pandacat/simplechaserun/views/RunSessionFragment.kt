@@ -101,7 +101,7 @@ class RunSessionFragment : Fragment() {
                 .setTitle(getString(R.string.permissions_title))
                 .setMessage(getString(R.string.permissions_explanation))
                 .setPositiveButton(getString(R.string.permissions_button_text)) {_,_->
-                    PermissionUtil.requestPermission(findNavController())
+                    PermissionUtil.requestPermissions(findNavController())
                 }
                 .setNegativeButton(getString(R.string.cancel), null)
                 .create().show()

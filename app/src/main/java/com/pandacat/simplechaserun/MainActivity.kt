@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.databinding.ActivityMainBinding
 import com.pandacat.simplechaserun.utils.PermissionUtil

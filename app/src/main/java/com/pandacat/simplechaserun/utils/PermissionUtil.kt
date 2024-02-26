@@ -35,7 +35,7 @@ object PermissionUtil {
             navController.navigate(R.id.globalToPermissions)
     }
 
-    fun requestPermission(navController: NavController)
+    fun requestPermissions(navController: NavController)
     {
         navController.navigate(R.id.globalToPermissions)
     }

@@ -1,7 +1,7 @@
 package com.pandacat.simplechaserun.di
 
 import android.content.Context
-import com.pandacat.simplechaserun.LocationProvider
+import com.pandacat.simplechaserun.services.support.LocationProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
