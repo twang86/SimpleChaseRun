@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
@@ -29,7 +30,7 @@ class RunService: Service() {
     companion object
     {
         val runState: MutableLiveData<RunState> = MutableLiveData(RunState(RunState.State.NOT_STARTED, SystemClock.elapsedRealtime()))
-        val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0,0))
+        val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0.0,0))
         val monsterStates: MutableLiveData<HashMap<Int, MonsterState>> = MutableLiveData(hashMapOf())
     }
 
@@ -37,7 +38,9 @@ class RunService: Service() {
     private lateinit var baseNotificationBuilder: NotificationCompat.Builder
     private lateinit var curNotificationBuilder: NotificationCompat.Builder
 
+    //run parameters
     private var runningStartTime: Long = 0
+    private var lastValidLocation: LatLng? = null
 
     private var serviceKilled : Boolean = false
 
@@ -90,6 +93,7 @@ class RunService: Service() {
             return
         updateRunState(RunState.State.PAUSED)
         locationProvider.stopLocationTracking()
+        lastValidLocation = null
     }
 
     private fun stopRun()
@@ -112,8 +116,13 @@ class RunService: Service() {
     private fun updateRunnerState(newLocation: LatLng)
     {
         val old = runnerState.value!!
-        //todo do some time and distance math here
-        runnerState.value = RunnerState(newLocation, old.totalDistanceM, old.totalTimeMillis)
+        var addedDistance = 0.0
+        lastValidLocation?.let {
+            addedDistance = RunUtil.calculateDistanceMeters(it, newLocation)
+        }
+        lastValidLocation = newLocation
+        //todo do some time math here
+        runnerState.value = RunnerState(newLocation, old.totalDistanceM + addedDistance, old.totalTimeMillis)
     }
 
     private fun updateNotificationTrackingState() {
@@ -140,7 +149,7 @@ class RunService: Service() {
         if (!serviceKilled && PermissionUtil.checkPermission(Manifest.permission.POST_NOTIFICATIONS, applicationContext)) {
             curNotificationBuilder = baseNotificationBuilder
                 .addAction(R.drawable.ic_pause, notificationActionText, pendingIntent)
-            notificationManager.notify(Constants.NOTIFICATION_ID, curNotificationBuilder.build())
+            notificationManager.notify(Constants.NOTIFICATION_ID_RUN, curNotificationBuilder.build())
         }
     }
 
@@ -150,7 +159,7 @@ class RunService: Service() {
             return
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = curNotificationBuilder.setContentText(RunUtil.getFormattedStopWatchTime(runTimeMillis, false))
-        notificationManager.notify(Constants.NOTIFICATION_ID, notification.build())
+        notificationManager.notify(Constants.NOTIFICATION_ID_RUN, notification.build())
     }
 
     private fun createNotificationBuilder() : NotificationCompat.Builder{
@@ -179,7 +188,7 @@ class RunService: Service() {
             createNotificationChannel(notificationManager)
         }
         runningStartTime = SystemClock.elapsedRealtime()
-        startForeground(Constants.NOTIFICATION_ID, baseNotificationBuilder.build())
+        startForeground(Constants.NOTIFICATION_ID_RUN, baseNotificationBuilder.build())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

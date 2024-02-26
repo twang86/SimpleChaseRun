@@ -3,7 +3,6 @@ package com.pandacat.simplechaserun.views
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,11 +31,10 @@ class RunSessionFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RunService.runState.observe(this) {
-            updateView()
+            updateControls()
         }
         RunService.runnerState.observe(this) {
-            //Log.i(TAG, "runner pos: ${it.currentPosition}")
-            marker?.position = it.currentPosition
+            updateView()
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
@@ -65,21 +63,20 @@ class RunSessionFragment : Fragment() {
         }
     }
 
-    private fun updateView()
+    private fun updateControls()
     {
         val curState = RunService.runState.value!!.activeState
         if (curState == RunState.State.ACTIVE) {
             binding.playPauseButton.setImageResource(R.drawable.ic_pause)
             binding.playPauseButton.setOnClickListener{
-                if (checkPermissionAndInformUser())
                     sendCommandToService(Constants.PAUSE_RUNNING_COMMAND)
             }
         } else
         {
             binding.playPauseButton.setImageResource(R.drawable.ic_play_arrow)
             binding.playPauseButton.setOnClickListener{
-
-                sendCommandToService(Constants.START_RUNNING_COMMAND)
+                if (checkPermissionAndInformUser())
+                    sendCommandToService(Constants.START_RUNNING_COMMAND)
             }
         }
 
@@ -87,6 +84,13 @@ class RunSessionFragment : Fragment() {
         binding.stopButton.setOnClickListener{
             sendCommandToService(Constants.STOP_RUNNING_COMMAND)
         }
+    }
+
+    private fun updateView()
+    {
+        updateControls()
+        marker?.position = RunService.runnerState.value!!.currentPosition
+        binding.distanceText.text = String.format("%.2f", RunService.runnerState.value!!.totalDistanceM)
     }
 
     private fun checkPermissionAndInformUser() : Boolean

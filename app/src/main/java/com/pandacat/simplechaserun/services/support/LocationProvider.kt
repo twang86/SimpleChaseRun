@@ -21,10 +21,6 @@ class LocationProvider(private val context: Context) {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             super.onLocationResult(result)
-            for((index, loc) in result.locations.withIndex())
-            {
-                Log.i(TAG, "locations: $index $loc")
-            }
             result.locations.first().let {
                 locationListener?.onLocationReceived(LatLng(it.latitude, it.longitude))
             }
