@@ -14,16 +14,30 @@ import com.pandacat.simplechaserun.R
 
 object PermissionUtil {
     val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-    fun getPermissionsRequired() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        LOCATION_PERMISSIONS
-    } else {
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    fun getPermissionsRequired() : Array<String>
+    {
+        val permissions = ArrayList(LOCATION_PERMISSIONS.toList())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            permissions.add((Manifest.permission.POST_NOTIFICATIONS))
+
+        return permissions.toTypedArray()
+
     }
+
+    fun checkAllPermissions(context: Context) = checkPermissions(getPermissionsRequired(), context)
 
     fun checkPermissionsAndRequest(context: Context, navController: NavController)
     {
-        if (!checkPermissions(getPermissionsRequired(), context))
+        if (!checkAllPermissions(context))
             navController.navigate(R.id.globalToPermissions)
+    }
+
+    fun requestPermission(navController: NavController)
+    {
+        navController.navigate(R.id.globalToPermissions)
     }
 
     fun checkPermissions(permissionsNeeded: Array<String>, context: Context) : Boolean {

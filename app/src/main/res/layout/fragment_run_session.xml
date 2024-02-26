@@ -8,6 +8,88 @@
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="4"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="@dimen/two_unit">
+
+        <TextView
+            android:id="@+id/distanceText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/large_text"
+            android:text="00:00"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/small_text"
+            android:text="Distance"
+            android:layout_above="@id/distanceText"
+            android:layout_alignStart="@id/distanceText"/>
+
+        <TextView
+            android:id="@+id/timeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/medium_text"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="00:00:00"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/small_text"
+            android:text="Time"
+            android:layout_above="@id/timeText"
+            android:layout_alignStart="@id/timeText"/>
+
+        <TextView
+            android:id="@+id/monsterDistText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/medium_text"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="00:00:00"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/small_text"
+            android:text="Time"
+            android:layout_above="@id/monsterDistText"
+            android:layout_alignStart="@id/monsterDistText"/>
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="@dimen/two_unit"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/playPauseButton"
+            android:layout_width="@dimen/ten_unit"
+            android:layout_height="@dimen/ten_unit"
+            android:src="@drawable/ic_play_arrow"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/stopButton"
+            android:layout_width="@dimen/four_unit"
+            android:layout_height="@dimen/four_unit"
+            android:src="@drawable/ic_stop"
+            android:layout_gravity="center_vertical" />
+
+    </FrameLayout>
 
 </LinearLayout>

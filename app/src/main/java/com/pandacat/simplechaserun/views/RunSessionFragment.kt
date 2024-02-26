@@ -1,22 +1,44 @@
 package com.pandacat.simplechaserun.views
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pandacat.simplechaserun.R
+import com.pandacat.simplechaserun.constants.Constants
+import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.databinding.FragmentRunSessionBinding
+import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.BitmapUtil
+import com.pandacat.simplechaserun.utils.PermissionUtil
 
 class RunSessionFragment : Fragment() {
     private val TAG = "RunSessionFragment"
     private lateinit var binding: FragmentRunSessionBinding
-    private var map: GoogleMap? = null;
+    private var map: GoogleMap? = null
+
+    private var marker: Marker? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        RunService.runState.observe(this) {
+            updateView()
+        }
+        RunService.runnerState.observe(this) {
+            //Log.i(TAG, "runner pos: ${it.currentPosition}")
+            marker?.position = it.currentPosition
+        }
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         binding = FragmentRunSessionBinding.inflate(inflater, container, false)
@@ -37,12 +59,57 @@ class RunSessionFragment : Fragment() {
                 options.icon(icon)
             }
 
-            val marker = it.addMarker(options)
+            marker = it.addMarker(options)
             marker?.showInfoWindow()
             it.moveCamera(CameraUpdateFactory.newLatLngZoom(options.position, 16.0f))
         }
     }
 
+    private fun updateView()
+    {
+        val curState = RunService.runState.value!!.activeState
+        if (curState == RunState.State.ACTIVE) {
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+            binding.playPauseButton.setOnClickListener{
+                if (checkPermissionAndInformUser())
+                    sendCommandToService(Constants.PAUSE_RUNNING_COMMAND)
+            }
+        } else
+        {
+            binding.playPauseButton.setImageResource(R.drawable.ic_play_arrow)
+            binding.playPauseButton.setOnClickListener{
+
+                sendCommandToService(Constants.START_RUNNING_COMMAND)
+            }
+        }
+
+        binding.stopButton.visibility = if (curState == RunState.State.PAUSED) View.VISIBLE else View.GONE
+        binding.stopButton.setOnClickListener{
+            sendCommandToService(Constants.STOP_RUNNING_COMMAND)
+        }
+    }
+
+    private fun checkPermissionAndInformUser() : Boolean
+    {
+        if (!PermissionUtil.checkAllPermissions(requireContext()))
+        {
+            AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.permissions_title))
+                .setMessage(getString(R.string.permissions_explanation))
+                .setPositiveButton(getString(R.string.permissions_button_text)) {_,_->
+                    PermissionUtil.requestPermission(findNavController())
+                }
+                .setNegativeButton(getString(R.string.cancel), null)
+                .create().show()
+            return false
+        }
+        return true
+    }
+    private fun sendCommandToService(action: String) =
+        Intent(requireContext(), RunService::class.java).also {
+            it.action = action
+            requireContext().startService(it)
+        }
 
     override fun onResume() {
         super.onResume()
@@ -62,15 +129,5 @@ class RunSessionFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         binding.mapView.onSaveInstanceState(outState)
-    }
-
-    private fun startRun()
-    {
-
-    }
-
-    private fun stopRun()
-    {
-
     }
 }

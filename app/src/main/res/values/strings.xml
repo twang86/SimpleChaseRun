@@ -3,10 +3,14 @@
     <string name="app_friendly_name">Chase.Run</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="resume">Resume</string>
+    <string name="pause">Pause</string>
     <string name="permissions_title">Permissions</string>
-    <string name="permissions_message">This app needs Location Permissions to function</string>
+    <string name="permissions_explanation">This app needs permissions to start your run</string>
+    <string name="permissions_page_message">This app needs the following Permissions to function</string>
     <string name="permissions_quit_message">Ignore permissions and continue anyway?</string>
     <string name="permissions_location">Location Permissions</string>
+    <string name="permission_notify">Notification Permission</string>
     <string name="permission_background">Background Location Permission</string>
     <string name="permission_background_settings">Please allow all-time location access in settings</string>
     <string name="permission_granted">Granted</string>

@@ -8,6 +8,13 @@
         android:id="@+id/globalToPermissions"
         app:destination="@id/permissionsFragment"/>
 
+    <action
+        android:id="@+id/globalToRunSession"
+        app:destination="@id/runSessionFragment"
+        app:popUpTo="@id/runSessionFragment"
+        app:popUpToInclusive="false"/>
+
+
     <fragment
         android:id="@+id/runSessionFragment"
         android:name="com.pandacat.simplechaserun.views.RunSessionFragment"

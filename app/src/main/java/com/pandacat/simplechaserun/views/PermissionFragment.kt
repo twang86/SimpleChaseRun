@@ -27,6 +27,12 @@ class PermissionFragment : Fragment()  {
         ActivityResultContracts.RequestPermission())
     {
         refreshViews() }
+    private var notifyPermissionRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission())
+    {
+        refreshViews()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         binding = FragmentPermissionsBinding.inflate(inflater, container, false)
@@ -75,6 +81,23 @@ class PermissionFragment : Fragment()  {
         }
         else {
             binding.locationBGGroup.visibility = View.GONE
+        }
+
+        var hasNotifyPermissions = false
+        var hasFGServiceLocationPermission = false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
+            val hasNotifyPermissions = PermissionUtil.checkPermission(Manifest.permission.POST_NOTIFICATIONS, requireContext())
+            binding.notifyGroup.visibility = View.VISIBLE
+            binding.notifyPermissionButton.visibility = if (hasNotifyPermissions) View.GONE else View.VISIBLE
+            binding.notifyPermissionGranted.visibility = if (hasNotifyPermissions) View.VISIBLE else View.GONE
+            binding.notifyPermissionButton.setOnClickListener {
+                notifyPermissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        else{
+            binding.notifyGroup.visibility = View.GONE
         }
         binding.locationPermissionsButton.visibility = if (hasLocationPermissions) View.GONE else View.VISIBLE
         binding.locationGrantedText.visibility = if (hasLocationPermissions) View.VISIBLE else View.GONE
