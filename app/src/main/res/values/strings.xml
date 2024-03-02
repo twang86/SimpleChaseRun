@@ -15,4 +15,9 @@
     <string name="permission_background_settings">Please allow all-time location access in settings</string>
     <string name="permission_granted">Granted</string>
     <string name="permissions_button_text">Grant Permission</string>
+    <string name="not_available">N/A</string>
+
+
+    <string name="monster_name_zombie">Zombie</string>
+    <string name="monster_name_infected">Infected</string>
 </resources>

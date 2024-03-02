@@ -3,6 +3,7 @@ package com.pandacat.simplechaserun.views
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,11 +16,14 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.constants.Constants
+import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.databinding.FragmentRunSessionBinding
 import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.BitmapUtil
 import com.pandacat.simplechaserun.utils.PermissionUtil
+import com.pandacat.simplechaserun.utils.RunUtil
+import kotlin.math.abs
 
 class RunSessionFragment : Fragment() {
     private val TAG = "RunSessionFragment"
@@ -34,6 +38,9 @@ class RunSessionFragment : Fragment() {
             updateControls()
         }
         RunService.runnerState.observe(this) {
+            updateView()
+        }
+        RunService.monsterStates.observe(this) {
             updateView()
         }
     }
@@ -89,8 +96,25 @@ class RunSessionFragment : Fragment() {
     private fun updateView()
     {
         updateControls()
-        marker?.position = RunService.runnerState.value!!.currentPosition
-        binding.distanceText.text = String.format("%.2f", RunService.runnerState.value!!.totalDistanceM)
+        val runState = RunService.runnerState.value!!
+        val monsterState = RunService.monsterStates.value!!
+
+        marker?.position = runState.currentPosition
+        binding.distanceText.text = String.format("%.2f", runState.totalDistanceM)
+        binding.timeText.text = RunUtil.getFormattedStopWatchTime(runState.totalTimeMillis)
+
+        var hasActiveMonster = false
+        for (monster in monsterState.values)
+        {
+            if (monster.state == MonsterState.State.ACTIVE) {
+                binding.monsterDistText.text =
+                    String.format("%.2f", monster.getDistanceFromRunner(runState.totalDistanceM))
+                hasActiveMonster = true
+                break
+            }
+        }
+        if (!hasActiveMonster)
+            binding.monsterDistText.text = getString(R.string.not_available)
     }
 
     private fun checkPermissionAndInformUser() : Boolean

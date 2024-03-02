@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
@@ -17,20 +18,38 @@ import com.google.android.gms.maps.model.LatLng
 import com.pandacat.simplechaserun.MainActivity
 import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.constants.Constants
+import com.pandacat.simplechaserun.data.monsters.MonsterType
+import com.pandacat.simplechaserun.data.params.MonsterParam
+import com.pandacat.simplechaserun.data.params.RunParam
+import com.pandacat.simplechaserun.data.params.RunType
+import com.pandacat.simplechaserun.data.states.MonsterDisplayState
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.data.states.RunnerState
 import com.pandacat.simplechaserun.services.support.LocationProvider
+import com.pandacat.simplechaserun.services.support.MonstersManager
+import com.pandacat.simplechaserun.services.support.RunnerManager
 import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.RunUtil
 
-class RunService: Service() {
+class RunService: Service(), MonstersManager.MonsterListener {
     private val TAG = "RunService"
     companion object
     {
         val runState: MutableLiveData<RunState> = MutableLiveData(RunState(RunState.State.NOT_STARTED, SystemClock.elapsedRealtime()))
         val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0.0,0))
         val monsterStates: MutableLiveData<HashMap<Int, MonsterState>> = MutableLiveData(hashMapOf())
+        val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(RunType.DISTANCE, hashMapOf()))
+    }
+
+
+    //todo delete this later!
+    private fun createTestParams()
+    {
+        val monsterParams = hashMapOf<Int, MonsterParam>()
+        monsterParams[1] = MonsterParam(MonsterType.INFECTED, 10, 2, 1000, MonsterType.INFECTED.maxSpeedKPH)
+        monsterParams[2] = MonsterParam(MonsterType.ZOMBIE, 40, 2, 100, MonsterType.ZOMBIE.maxSpeedKPH)
+        runParams.value = RunParam(RunType.DISTANCE, monsterParams)
     }
 
     private lateinit var locationProvider: LocationProvider
@@ -38,10 +57,12 @@ class RunService: Service() {
     private lateinit var curNotificationBuilder: NotificationCompat.Builder
 
     //run parameters
-    private var runningStartTime: Long = 0
-    private var lastValidLocation: LatLng? = null
+    private var runningStartTimeMillis: Long = 0
 
     private var serviceKilled : Boolean = false
+
+    private val runnerManager = RunnerManager()
+    private val monstersManager = MonstersManager(this)
 
     override fun onCreate() {
         super.onCreate()
@@ -74,13 +95,20 @@ class RunService: Service() {
         val curState = runState.value!!.activeState
         if (curState != RunState.State.NOT_STARTED && curState != RunState.State.PAUSED)
             return
-        if(curState == RunState.State.NOT_STARTED)
+        if(curState == RunState.State.NOT_STARTED) {
+            createTestParams()
+            monstersManager.initMonsters(runParams.value!!)
+            monsterStates.value = monstersManager.getCurrentStates()
             startForegroundService()
+        }
 
         updateRunState(RunState.State.ACTIVE)
+        runnerManager.startRun()
+        monstersManager.startRun()
         locationProvider.startLocationTracking(object: LocationProvider.LocationListener {
             override fun onLocationReceived(location: LatLng) {
-                updateRunnerState(location)
+                runnerState.value = runnerManager.updateRunner(runnerState.value!!, location)
+                monsterStates.value = monstersManager.updateMonsters(runnerState.value!!)
             }
         })
     }
@@ -92,12 +120,15 @@ class RunService: Service() {
             return
         updateRunState(RunState.State.PAUSED)
         locationProvider.stopLocationTracking()
-        lastValidLocation = null
+        runnerManager.pauseRun()
+        monstersManager.pauseRun()
     }
 
     private fun stopRun()
     {
         pauseRun()
+        runnerManager.stopRun()
+        monstersManager.stopRun()
         val curState = runState.value!!.activeState
         if (curState != RunState.State.PAUSED)
             return
@@ -108,20 +139,8 @@ class RunService: Service() {
 
     private fun updateRunState(state: RunState.State)
     {
-        runState.value = RunState(state, runningStartTime)
+        runState.value = RunState(state, runningStartTimeMillis)
         updateNotificationTrackingState()
-    }
-
-    private fun updateRunnerState(newLocation: LatLng)
-    {
-        val old = runnerState.value!!
-        var addedDistance = 0.0
-        lastValidLocation?.let {
-            addedDistance = RunUtil.calculateDistanceMeters(it, newLocation)
-        }
-        lastValidLocation = newLocation
-        //todo do some time math here
-        runnerState.value = RunnerState(newLocation, old.totalDistanceM + addedDistance, old.totalTimeMillis)
     }
 
     private fun updateNotificationTrackingState() {
@@ -186,7 +205,7 @@ class RunService: Service() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(notificationManager)
         }
-        runningStartTime = SystemClock.elapsedRealtime()
+        runningStartTimeMillis = SystemClock.elapsedRealtime()
         startForeground(Constants.NOTIFICATION_ID_RUN, baseNotificationBuilder.build())
     }
 
@@ -198,5 +217,20 @@ class RunService: Service() {
             NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
+    }
+
+    override fun onMonsterStarted(type: MonsterType) {
+        //todo play audio
+        Log.i(TAG, "${type.getDisplayName(applicationContext)} started chasing")
+    }
+
+    override fun onMonsterClose(type: MonsterType, distInSeconds: Long) {
+        //todo play audio
+        Log.i(TAG, "${type.getDisplayName(applicationContext)} is $distInSeconds seconds away")
+    }
+
+    override fun onMonsterFinished(type: MonsterType, success: Boolean) {
+        //todo play audio
+        Log.i(TAG, "${type.getDisplayName(applicationContext)} finished success? $success")
     }
 }
