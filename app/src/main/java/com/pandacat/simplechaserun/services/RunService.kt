@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
@@ -31,6 +32,7 @@ import com.pandacat.simplechaserun.services.support.MonstersManager
 import com.pandacat.simplechaserun.services.support.RunnerManager
 import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.RunUtil
+import com.pandacat.simplechaserun.utils.UnitsUtil
 
 class RunService: Service(), MonstersManager.MonsterListener {
     private val TAG = "RunService"
@@ -176,7 +178,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
         if (!PermissionUtil.checkPermission(Manifest.permission.POST_NOTIFICATIONS, applicationContext))
             return
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = curNotificationBuilder.setContentText(RunUtil.getFormattedStopWatchTime(runTimeMillis, false))
+        val notification = curNotificationBuilder.setContentText(UnitsUtil.getFormattedStopWatchTime(runTimeMillis, false))
         notificationManager.notify(Constants.NOTIFICATION_ID_RUN, notification.build())
     }
 
@@ -222,6 +224,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
     override fun onMonsterStarted(type: MonsterType) {
         //todo play audio
         Log.i(TAG, "${type.getDisplayName(applicationContext)} started chasing")
+        Toast.makeText(applicationContext, "${type.getDisplayName(applicationContext)} started chasing", Toast.LENGTH_SHORT).show()
     }
 
     override fun onMonsterClose(type: MonsterType, distInSeconds: Long) {
@@ -232,5 +235,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
     override fun onMonsterFinished(type: MonsterType, success: Boolean) {
         //todo play audio
         Log.i(TAG, "${type.getDisplayName(applicationContext)} finished success? $success")
+        Toast.makeText(applicationContext, "${type.getDisplayName(applicationContext)} ${if (success) "gave up!" else "caught user!"}", Toast.LENGTH_SHORT).show()
+
     }
 }

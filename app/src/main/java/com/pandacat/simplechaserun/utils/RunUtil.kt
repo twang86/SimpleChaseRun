@@ -1,6 +1,9 @@
 package com.pandacat.simplechaserun.utils
 
 import com.google.android.gms.maps.model.LatLng
+import com.pandacat.simplechaserun.R
+import com.pandacat.simplechaserun.data.states.MonsterState
+import com.pandacat.simplechaserun.data.states.RunnerState
 import java.util.concurrent.TimeUnit
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -8,25 +11,6 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 object RunUtil {
-    fun getFormattedStopWatchTime(ms: Long, includeMillis: Boolean = false): String {
-        var milliseconds = ms
-        val hours = TimeUnit.MILLISECONDS.toHours(milliseconds)
-        milliseconds -= TimeUnit.HOURS.toMillis(hours)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
-        milliseconds -= TimeUnit.MINUTES.toMillis(minutes)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
-        if(!includeMillis) {
-            return "${if(hours < 10) "0" else ""}$hours:" +
-                    "${if(minutes < 10) "0" else ""}$minutes:" +
-                    "${if(seconds < 10) "0" else ""}$seconds"
-        }
-        milliseconds -= TimeUnit.SECONDS.toMillis(seconds)
-        milliseconds /= 10
-        return "${if(hours < 10) "0" else ""}$hours:" +
-                "${if(minutes < 10) "0" else ""}$minutes:" +
-                "${if(seconds < 10) "0" else ""}$seconds:" +
-                "${if(milliseconds < 10) "0" else ""}$milliseconds"
-    }
 
     fun calculateDistanceMeters(loc1: LatLng, loc2: LatLng) = calculateDistanceMeters(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude)
 
@@ -47,5 +31,23 @@ object RunUtil {
 
         val distance = R * c * 1000 // Convert to meters
         return distance
+    }
+
+    fun getActiveMonsterDistanceFromUser(monsterState: HashMap<Int, MonsterState>, runnerState: RunnerState) : Double?
+    {
+        getActiveMonster(monsterState)?.let {
+            return it.getDistanceFromRunner(runnerState.totalDistanceM)
+        }
+        return null
+    }
+
+    fun getActiveMonster(monsterState: HashMap<Int, MonsterState>) : MonsterState? {
+        for (monster in monsterState.values)
+        {
+            if (monster.state == MonsterState.State.ACTIVE) {
+                return monster
+            }
+        }
+        return null
     }
 }

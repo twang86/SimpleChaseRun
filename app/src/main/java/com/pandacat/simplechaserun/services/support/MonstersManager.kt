@@ -7,7 +7,7 @@ import com.pandacat.simplechaserun.data.params.RunParam
 import com.pandacat.simplechaserun.data.params.RunType
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunnerState
-import com.pandacat.simplechaserun.utils.MeasurementUtil
+import com.pandacat.simplechaserun.utils.UnitsUtil
 import kotlin.math.roundToLong
 
 class MonstersManager(val listener: MonsterListener): RunManagerBase {
@@ -40,7 +40,7 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                 RunType.DISTANCE->
                     runnerState.totalDistanceM >= monsterParam.value.startParam
                 RunType.TIME->
-                    MeasurementUtil.millisToMinutes(runnerState.totalTimeMillis) >= monsterParam.value.startParam
+                    UnitsUtil.millisToMinutes(runnerState.totalTimeMillis) >= monsterParam.value.startParam
             }
 
             if (shouldBeActive)
@@ -77,7 +77,7 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                         RunType.DISTANCE->
                             totalDistanceTraveledMeters >= monsterParam.value.stamina
                         RunType.TIME->
-                            MeasurementUtil.millisToMinutes(timeSinceStartMillis) >= monsterParam.value.stamina
+                            UnitsUtil.millisToMinutes(timeSinceStartMillis) >= monsterParam.value.stamina
                     }
                     if (caughtRunner)
                     {

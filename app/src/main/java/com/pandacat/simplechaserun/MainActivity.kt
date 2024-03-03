@@ -3,13 +3,16 @@ package com.pandacat.simplechaserun
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.databinding.ActivityMainBinding
 import com.pandacat.simplechaserun.utils.PermissionUtil
+import com.pandacat.simplechaserun.utils.PreferenceUtil
 
 class MainActivity : AppCompatActivity() {
+    val TAG = "MainActivity"
     lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         PermissionUtil.checkPermissionsAndRequest(this, navController)
         navigateToTrackingFragmentIfNeeded(intent)
+
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -3,7 +3,6 @@ package com.pandacat.simplechaserun.views
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +22,7 @@ import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.BitmapUtil
 import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.RunUtil
-import kotlin.math.abs
+import com.pandacat.simplechaserun.utils.UnitsUtil
 
 class RunSessionFragment : Fragment() {
     private val TAG = "RunSessionFragment"
@@ -96,25 +95,19 @@ class RunSessionFragment : Fragment() {
     private fun updateView()
     {
         updateControls()
-        val runState = RunService.runnerState.value!!
+        val runnerState = RunService.runnerState.value!!
         val monsterState = RunService.monsterStates.value!!
 
-        marker?.position = runState.currentPosition
-        binding.distanceText.text = String.format("%.2f", runState.totalDistanceM)
-        binding.timeText.text = RunUtil.getFormattedStopWatchTime(runState.totalTimeMillis)
+        marker?.position = runnerState.currentPosition
+        binding.distanceText.text = UnitsUtil.getDistanceText(runnerState.totalDistanceM, requireContext())
+        binding.timeText.text = UnitsUtil.getFormattedStopWatchTime(runnerState.totalTimeMillis)
 
-        var hasActiveMonster = false
-        for (monster in monsterState.values)
-        {
-            if (monster.state == MonsterState.State.ACTIVE) {
-                binding.monsterDistText.text =
-                    String.format("%.2f", monster.getDistanceFromRunner(runState.totalDistanceM))
-                hasActiveMonster = true
-                break
-            }
-        }
-        if (!hasActiveMonster)
+        val activeMonsterDist = RunUtil.getActiveMonsterDistanceFromUser(monsterState, runnerState)
+        activeMonsterDist?.let {
+            binding.monsterDistText.text = UnitsUtil.getDistanceText(it, requireContext())
+        } ?: run {
             binding.monsterDistText.text = getString(R.string.not_available)
+        }
     }
 
     private fun checkPermissionAndInformUser() : Boolean
@@ -142,6 +135,9 @@ class RunSessionFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         binding.mapView.onResume()
+
+        if (RunService.runState.value!!.activeState == RunState.State.STOPPED)
+            findNavController().popBackStack()
     }
 
     override fun onPause() {

@@ -11,64 +11,77 @@
         android:layout_height="0dp"
         android:layout_weight="4"/>
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="@dimen/two_unit">
 
-        <TextView
-            android:id="@+id/distanceText"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/large_text"
-            android:text="00:00"
-            android:layout_centerInParent="true"/>
+            android:orientation="vertical"
+            android:layout_gravity="center">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Distance"/>
+
+            <TextView
+                android:id="@+id/distanceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
+                android:text="00:00"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/small_text"
-            android:text="Distance"
-            android:layout_above="@id/distanceText"
-            android:layout_alignStart="@id/distanceText"/>
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/timeText"
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Time"/>
+
+            <TextView
+                android:id="@+id/timeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/medium_text"
+                android:text="00:00:00"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/medium_text"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="00:00:00"/>
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical|end">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/small_text"
-            android:text="Time"
-            android:layout_above="@id/timeText"
-            android:layout_alignStart="@id/timeText"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Monster"/>
 
-        <TextView
-            android:id="@+id/monsterDistText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/medium_text"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:text="N\A"/>
+            <TextView
+                android:id="@+id/monsterDistText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/medium_text"
+                android:text="N\A"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/small_text"
-            android:text="Monster"
-            android:layout_above="@id/monsterDistText"
-            android:layout_alignStart="@id/monsterDistText"/>
+        </LinearLayout>
 
-
-    </RelativeLayout>
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -17,6 +17,15 @@
     <string name="permissions_button_text">Grant Permission</string>
     <string name="not_available">N/A</string>
 
+    <string name="unit_meter_short">m</string>
+    <string name="unit_kilometer_short">km</string>
+    <string name="unit_mile_short">mi</string>
+    <string name="unit_feet_short">ft</string>
+
+    <string name="unit_minutes_short">min</string>
+    <string name="symbol_slash">/</string>
+    <string name="speed_unit_kph">kph</string>
+    <string name="speed_unit_mph">mph</string>
 
     <string name="monster_name_zombie">Zombie</string>
     <string name="monster_name_infected">Infected</string>
