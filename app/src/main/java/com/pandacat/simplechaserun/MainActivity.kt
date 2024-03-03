@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
+        if (navController.currentDestination?.id == R.id.runSessionFragment)
+            return
         if(intent?.action == Constants.ACTION_SHOW_TRACKING_FRAGMENT) {
             navController.navigate(R.id.globalToRunSession)
         }
