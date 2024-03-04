@@ -10,8 +10,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
-import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
@@ -23,10 +21,10 @@ import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.MonsterParam
 import com.pandacat.simplechaserun.data.params.RunParam
 import com.pandacat.simplechaserun.data.params.RunType
-import com.pandacat.simplechaserun.data.states.MonsterDisplayState
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.data.states.RunnerState
+import com.pandacat.simplechaserun.services.support.AudioManager
 import com.pandacat.simplechaserun.services.support.LocationProvider
 import com.pandacat.simplechaserun.services.support.MonstersManager
 import com.pandacat.simplechaserun.services.support.RunnerManager
@@ -34,7 +32,7 @@ import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.RunUtil
 import com.pandacat.simplechaserun.utils.UnitsUtil
 
-class RunService: Service(), MonstersManager.MonsterListener {
+class RunService: Service(){
     private val TAG = "RunService"
     companion object
     {
@@ -49,8 +47,8 @@ class RunService: Service(), MonstersManager.MonsterListener {
     private fun createTestParams()
     {
         val monsterParams = hashMapOf<Int, MonsterParam>()
-        monsterParams[1] = MonsterParam(MonsterType.INFECTED, 10, 2, 1000, MonsterType.INFECTED.maxSpeedKPH)
-        monsterParams[2] = MonsterParam(MonsterType.ZOMBIE, 40, 2, 100, MonsterType.ZOMBIE.maxSpeedKPH)
+        monsterParams[1] = MonsterParam(MonsterType.T_REX, 100, 5, 6000, 8.5)
+        monsterParams[2] = MonsterParam(MonsterType.ZOMBIE, 8000, 5, 7000, 8.0)
         runParams.value = RunParam(RunType.DISTANCE, monsterParams)
     }
 
@@ -64,13 +62,16 @@ class RunService: Service(), MonstersManager.MonsterListener {
     private var serviceKilled : Boolean = false
 
     private val runnerManager = RunnerManager()
-    private val monstersManager = MonstersManager(this)
+    private lateinit var audioManager: AudioManager
+    private lateinit var monstersManager: MonstersManager
 
     override fun onCreate() {
         super.onCreate()
         locationProvider = LocationProvider(this)
         baseNotificationBuilder = createNotificationBuilder()
         curNotificationBuilder = baseNotificationBuilder
+        audioManager = AudioManager(applicationContext)
+        monstersManager = MonstersManager(audioManager)
     }
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -107,10 +108,13 @@ class RunService: Service(), MonstersManager.MonsterListener {
         updateRunState(RunState.State.ACTIVE)
         runnerManager.startRun()
         monstersManager.startRun()
+        audioManager.startRun()
         locationProvider.startLocationTracking(object: LocationProvider.LocationListener {
             override fun onLocationReceived(location: LatLng) {
                 runnerState.value = runnerManager.updateRunner(runnerState.value!!, location)
                 monsterStates.value = monstersManager.updateMonsters(runnerState.value!!)
+                updateNotificationMonster(runnerState.value!!, RunUtil.getActiveMonster(
+                    monsterStates.value!!))
             }
         })
     }
@@ -124,6 +128,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
         locationProvider.stopLocationTracking()
         runnerManager.pauseRun()
         monstersManager.pauseRun()
+        audioManager.pauseRun()
     }
 
     private fun stopRun()
@@ -131,6 +136,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
         pauseRun()
         runnerManager.stopRun()
         monstersManager.stopRun()
+        audioManager.stopRun()
         val curState = runState.value!!.activeState
         if (curState != RunState.State.PAUSED)
             return
@@ -173,12 +179,18 @@ class RunService: Service(), MonstersManager.MonsterListener {
         }
     }
 
-    private fun updateNotificationTime(runTimeMillis: Long)
+    private fun updateNotificationMonster(runnerState: RunnerState, monster: MonsterState?)
     {
         if (!PermissionUtil.checkPermission(Manifest.permission.POST_NOTIFICATIONS, applicationContext))
             return
+
+        var notificationString = "No monsters chasing"
+        monster?.let {
+            notificationString = "${it.monsterType.getDisplayName(applicationContext)} ${UnitsUtil.getDistanceText(it.getDistanceFromRunner(runnerState.totalDistanceM), applicationContext)} away"
+        }
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = curNotificationBuilder.setContentText(UnitsUtil.getFormattedStopWatchTime(runTimeMillis, false))
+        val notification = curNotificationBuilder.setContentText(notificationString)
         notificationManager.notify(Constants.NOTIFICATION_ID_RUN, notification.build())
     }
 
@@ -195,7 +207,7 @@ class RunService: Service(), MonstersManager.MonsterListener {
             .setAutoCancel(false)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_directions_run)
-            .setContentTitle("Running App")
+            .setContentTitle(getString(R.string.app_friendly_name))
             .setContentText("00:00:00")
             .setContentIntent(pending)
     }
@@ -219,23 +231,5 @@ class RunService: Service(), MonstersManager.MonsterListener {
             NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
-    }
-
-    override fun onMonsterStarted(type: MonsterType) {
-        //todo play audio
-        Log.i(TAG, "${type.getDisplayName(applicationContext)} started chasing")
-        Toast.makeText(applicationContext, "${type.getDisplayName(applicationContext)} started chasing", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onMonsterClose(type: MonsterType, distInSeconds: Long) {
-        //todo play audio
-        Log.i(TAG, "${type.getDisplayName(applicationContext)} is $distInSeconds seconds away")
-    }
-
-    override fun onMonsterFinished(type: MonsterType, success: Boolean) {
-        //todo play audio
-        Log.i(TAG, "${type.getDisplayName(applicationContext)} finished success? $success")
-        Toast.makeText(applicationContext, "${type.getDisplayName(applicationContext)} ${if (success) "gave up!" else "caught user!"}", Toast.LENGTH_SHORT).show()
-
     }
 }

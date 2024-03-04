@@ -25,6 +25,8 @@ object UnitsUtil {
 
     fun getSpeedText(kph: Double, context: Context) : String
     {
+        if (kph <= 0)
+            return "--"
         val useMinutesPerDist = PreferenceUtil.useMinutesPerDistance(context)
         val useMetric = PreferenceUtil.useMetricSystem(context)
         if (useMinutesPerDist)

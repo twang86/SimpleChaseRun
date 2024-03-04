@@ -9,19 +9,27 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"/>
+        android:layout_weight="3"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:padding="@dimen/two_unit">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="center">
+            android:layout_gravity="center_vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Runner"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/two_unit"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -34,16 +42,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/one_unit"
                 android:text="00:00"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical">
-
 
             <TextView
                 android:layout_width="wrap_content"
@@ -55,7 +55,21 @@
                 android:id="@+id/timeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/medium_text"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/one_unit"
+                android:text="00:00:00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Avg Speed"/>
+
+            <TextView
+                android:id="@+id/avgSpeedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
                 android:text="00:00:00"/>
 
         </LinearLayout>
@@ -64,19 +78,59 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="center_vertical|end">
+            android:layout_gravity="center_vertical|end"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/two_unit"
+                android:text="Monster"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/small_text"
-                android:text="Monster"/>
+                android:text="Type"/>
+
+
+            <TextView
+                android:id="@+id/monsterTypeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/one_unit"
+                android:text="N\A"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Gap"/>
+
 
             <TextView
                 android:id="@+id/monsterDistText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/medium_text"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/one_unit"
+                android:text="N\A"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/small_text"
+                android:text="Speed"/>
+
+
+            <TextView
+                android:id="@+id/monsterSpeedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
+                android:layout_marginBottom="@dimen/one_unit"
                 android:text="N\A"/>
 
         </LinearLayout>

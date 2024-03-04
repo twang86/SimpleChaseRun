@@ -99,14 +99,33 @@ class RunSessionFragment : Fragment() {
         val monsterState = RunService.monsterStates.value!!
 
         marker?.position = runnerState.currentPosition
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(runnerState.currentPosition, 16.0f))
         binding.distanceText.text = UnitsUtil.getDistanceText(runnerState.totalDistanceM, requireContext())
         binding.timeText.text = UnitsUtil.getFormattedStopWatchTime(runnerState.totalTimeMillis)
+        binding.avgSpeedText.text = UnitsUtil.getSpeedText(runnerState.getKPH(), requireContext())
 
-        val activeMonsterDist = RunUtil.getActiveMonsterDistanceFromUser(monsterState, runnerState)
-        activeMonsterDist?.let {
-            binding.monsterDistText.text = UnitsUtil.getDistanceText(it, requireContext())
+
+        var activeMonster: Map.Entry<Int, MonsterState>? = null
+        for(entry in monsterState.entries)
+        {
+            if (entry.value.state == MonsterState.State.ACTIVE) {
+                activeMonster = entry
+                break
+            }
+        }
+
+        activeMonster?.let {
+            binding.monsterDistText.text = UnitsUtil.getDistanceText(it.value.getDistanceFromRunner(runnerState.totalDistanceM), requireContext())
+            binding.monsterTypeText.text = it.value.monsterType.getDisplayName(requireContext())
+            RunService.runParams.value!!.monsterParams[it.key]?.let {activeParam->
+                binding.monsterSpeedText.text = UnitsUtil.getSpeedText(activeParam.speedKPH, requireContext())
+            }?: run {
+                binding.monsterSpeedText.text = getString(R.string.not_available)
+            }
         } ?: run {
             binding.monsterDistText.text = getString(R.string.not_available)
+            binding.monsterTypeText.text = getString(R.string.not_available)
+            binding.monsterSpeedText.text = getString(R.string.not_available)
         }
     }
 

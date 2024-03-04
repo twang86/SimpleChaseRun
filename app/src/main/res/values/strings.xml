@@ -29,4 +29,5 @@
 
     <string name="monster_name_zombie">Zombie</string>
     <string name="monster_name_infected">Infected</string>
+    <string name="monster_name_t_rex">T-Rex</string>
 </resources>

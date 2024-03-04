@@ -17,7 +17,7 @@ object Constants {
     const val ACTION_SHOW_TRACKING_FRAGMENT = "simplechaserun.show.tracking.fragment"
 
     //monsters
-    const val MONSTER_DANGER_CLOSE_SECONDS = 5L
+    const val MONSTER_DANGER_CLOSE_SECONDS = 10L
     const val MONSTER_START_MIN_SECONDS = MONSTER_DANGER_CLOSE_SECONDS
     const val MONSTER_START_MAX_SECONDS = 2 * MONSTER_DANGER_CLOSE_SECONDS
 }

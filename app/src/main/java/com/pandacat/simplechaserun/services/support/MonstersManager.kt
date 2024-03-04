@@ -17,7 +17,7 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
 
     interface MonsterListener{
         fun onMonsterStarted(type: MonsterType)
-        fun onMonsterClose(type: MonsterType, distInSeconds: Long)
+        fun onMonsterMoved(type: MonsterType, distInSeconds: Long)
         fun onMonsterFinished(type: MonsterType, success: Boolean)
     }
     fun updateMonsters(runnerState: RunnerState) : HashMap<Int, MonsterState>
@@ -94,8 +94,7 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                     else
                     {
                         val secondsUntilCapture = distanceToRunnerMeters/metersPerSecond
-                        if (secondsUntilCapture <= Constants.MONSTER_DANGER_CLOSE_SECONDS)
-                            listener.onMonsterClose(current.monsterType, secondsUntilCapture.roundToLong())
+                        listener.onMonsterMoved(current.monsterType, secondsUntilCapture.roundToLong())
                     }
                     monsterStates[monsterParam.key] = current
                 }
