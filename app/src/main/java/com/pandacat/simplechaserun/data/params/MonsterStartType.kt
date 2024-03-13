@@ -1,6 +1,6 @@
 package com.pandacat.simplechaserun.data.params
 
-enum class RunType {
+enum class MonsterStartType {
     DISTANCE,
     TIME
 }

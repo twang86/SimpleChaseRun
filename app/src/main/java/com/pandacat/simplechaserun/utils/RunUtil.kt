@@ -36,7 +36,7 @@ object RunUtil {
     fun getActiveMonsterDistanceFromUser(monsterState: HashMap<Int, MonsterState>, runnerState: RunnerState) : Double?
     {
         getActiveMonster(monsterState)?.let {
-            return it.getDistanceFromRunner(runnerState.totalDistanceM)
+            return it.distanceToRunner
         }
         return null
     }

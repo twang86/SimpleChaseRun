@@ -1,10 +1,9 @@
 package com.pandacat.simplechaserun.services.support
 
 import android.util.Log
-import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.RunParam
-import com.pandacat.simplechaserun.data.params.RunType
+import com.pandacat.simplechaserun.data.params.MonsterStartType
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunnerState
 import com.pandacat.simplechaserun.utils.UnitsUtil
@@ -13,6 +12,7 @@ import kotlin.math.roundToLong
 class MonstersManager(val listener: MonsterListener): RunManagerBase {
     private val TAG = "MonstersManager"
     private val monsterStates = hashMapOf<Int, MonsterState>()
+    private val monsterStartingPositions = hashMapOf<Int, RunnerState>()
     private var params : RunParam? = null
 
     interface MonsterListener{
@@ -36,10 +36,10 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                 break
 
             //checks if monsters should be active based on params
-            val shouldBeActive: Boolean = when(runParam.runType) {
-                RunType.DISTANCE->
+            val shouldBeActive: Boolean = when(monsterParam.value.runStartType) {
+                MonsterStartType.DISTANCE->
                     runnerState.totalDistanceM >= monsterParam.value.startParam
-                RunType.TIME->
+                MonsterStartType.TIME->
                     UnitsUtil.millisToMinutes(runnerState.totalTimeMillis) >= monsterParam.value.startParam
             }
 
@@ -52,42 +52,47 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                     current = MonsterState(
                         monsterParam.value.monsterType,
                         MonsterState.State.ACTIVE,
-                        monsterParam.value.getMonsterStartingPositionMeters(),
-                        runnerState)
+                        monsterParam.value.getStartingDistanceToRunnerMeters(),
+                        1F)
                     listener.onMonsterStarted(current.monsterType)
+                    monsterStartingPositions[monsterParam.key] = runnerState
                     Log.i(TAG, "creating monster: $current")
                 }
 
                 if (current.state == MonsterState.State.ACTIVE)
                 {
-                    val timeSinceStartMillis = runnerState.totalTimeMillis - current.runnerStateAtStart.totalTimeMillis
+                    val startingState = monsterStartingPositions[monsterParam.key]!!
+                    val timeSinceStartMillis = runnerState.totalTimeMillis - startingState.totalTimeMillis
                     val metersPerSecond = (monsterParam.value.speedKPH * 1000) / (60 * 60)
                     val metersPerMillis = metersPerSecond / 1000
-                    val totalDistanceTraveledMeters = metersPerMillis * timeSinceStartMillis + monsterParam.value.getMonsterStartingPositionMeters()
+                    val totalDistanceTraveled = metersPerMillis * timeSinceStartMillis
+                    val runnerTotalDistanceTravelled = runnerState.totalDistanceM - startingState.totalDistanceM
+                    val distanceToRunnerMeters = runnerTotalDistanceTravelled + monsterParam.value.getStartingDistanceToRunnerMeters() - totalDistanceTraveled
+                    val staminaLeft = when(monsterParam.value.runStartType)
+                    {
+                        MonsterStartType.DISTANCE -> {
+                            if (monsterParam.value.stamina <= totalDistanceTraveled) 0F else 1 - (totalDistanceTraveled / monsterParam.value.stamina).toFloat()
+                        }
+                        MonsterStartType.TIME -> {
+                            if (monsterParam.value.stamina <= timeSinceStartMillis / 1000F / 60F) 0F else 1 - (timeSinceStartMillis / 1000F / 60F) / monsterParam.value.stamina
+                        }
+                    }
 
-                    current = MonsterState(current.monsterType, current.state, totalDistanceTraveledMeters, current.runnerStateAtStart)
+                    current = MonsterState(current.monsterType, current.state, distanceToRunnerMeters, staminaLeft)
                     activeMonster = current
 
-                    val distanceToRunnerMeters = current.getDistanceFromRunner(runnerState.totalDistanceM)
-
-                    Log.i(TAG, "updateMonsters: runner ${runnerState.totalDistanceM} distance to runner $distanceToRunnerMeters")
                     Log.i(TAG, "updateMonsters: $current")
                     val caughtRunner = distanceToRunnerMeters <= 0
-                    val selfFinished = when(runParam.runType) {
-                        RunType.DISTANCE->
-                            totalDistanceTraveledMeters >= monsterParam.value.stamina
-                        RunType.TIME->
-                            UnitsUtil.millisToMinutes(timeSinceStartMillis) >= monsterParam.value.stamina
-                    }
+                    val selfFinished = staminaLeft == 0F
                     if (caughtRunner)
                     {
-                        current = MonsterState(current.monsterType,MonsterState.State.FINISH_FAILURE, totalDistanceTraveledMeters, current.runnerStateAtStart)
+                        current = MonsterState(current.monsterType,MonsterState.State.FINISH_FAILURE, current.distanceToRunner, current.staminaLeft)
                         listener.onMonsterFinished(current.monsterType, false)
                         activeMonster = null
                     }
                     else if (selfFinished)
                     {
-                        current = MonsterState(current.monsterType,MonsterState.State.FINISH_SUCCESS, totalDistanceTraveledMeters, current.runnerStateAtStart)
+                        current = MonsterState(current.monsterType,MonsterState.State.FINISH_SUCCESS, current.distanceToRunner, current.staminaLeft)
                         listener.onMonsterFinished(current.monsterType, true)
                         activeMonster = null
                     }
@@ -106,6 +111,8 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
     fun initMonsters(runParam: RunParam)
     {
         params = runParam
+        monsterStates.clear()
+        monsterStartingPositions.clear()
         for(monsterParam in runParam.monsterParams.entries)
         {
             monsterStates[monsterParam.key] = MonsterState.makeInitial(monsterParam.value.monsterType)

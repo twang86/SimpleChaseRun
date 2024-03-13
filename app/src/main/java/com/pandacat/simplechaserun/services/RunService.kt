@@ -20,7 +20,7 @@ import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.MonsterParam
 import com.pandacat.simplechaserun.data.params.RunParam
-import com.pandacat.simplechaserun.data.params.RunType
+import com.pandacat.simplechaserun.data.params.MonsterStartType
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.data.states.RunnerState
@@ -39,7 +39,7 @@ class RunService: Service(){
         val runState: MutableLiveData<RunState> = MutableLiveData(RunState(RunState.State.NOT_STARTED, SystemClock.elapsedRealtime()))
         val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0.0,0))
         val monsterStates: MutableLiveData<HashMap<Int, MonsterState>> = MutableLiveData(hashMapOf())
-        val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(RunType.DISTANCE, hashMapOf()))
+        val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(hashMapOf()))
     }
 
 
@@ -47,9 +47,9 @@ class RunService: Service(){
     private fun createTestParams()
     {
         val monsterParams = hashMapOf<Int, MonsterParam>()
-        monsterParams[1] = MonsterParam(MonsterType.T_REX, 100, 5, 6000, 8.5)
-        monsterParams[2] = MonsterParam(MonsterType.ZOMBIE, 8000, 5, 7000, 8.0)
-        runParams.value = RunParam(RunType.DISTANCE, monsterParams)
+        monsterParams[1] = MonsterParam(MonsterType.T_REX, MonsterStartType.TIME, 1, 5, 2, 8.8)
+        monsterParams[2] = MonsterParam(MonsterType.T_REX, MonsterStartType.DISTANCE, 4000, 5, 3200, 8.8)
+        runParams.value = RunParam(monsterParams)
     }
 
     private lateinit var locationProvider: LocationProvider
@@ -186,7 +186,7 @@ class RunService: Service(){
 
         var notificationString = "No monsters chasing"
         monster?.let {
-            notificationString = "${it.monsterType.getDisplayName(applicationContext)} ${UnitsUtil.getDistanceText(it.getDistanceFromRunner(runnerState.totalDistanceM), applicationContext)} away"
+            notificationString = "${it.monsterType.getDisplayName(applicationContext)} ${UnitsUtil.getDistanceText(it.distanceToRunner, applicationContext)} away"
         }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

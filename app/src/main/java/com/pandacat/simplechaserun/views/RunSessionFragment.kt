@@ -23,6 +23,7 @@ import com.pandacat.simplechaserun.utils.BitmapUtil
 import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.RunUtil
 import com.pandacat.simplechaserun.utils.UnitsUtil
+import kotlin.math.roundToInt
 
 class RunSessionFragment : Fragment() {
     private val TAG = "RunSessionFragment"
@@ -115,8 +116,9 @@ class RunSessionFragment : Fragment() {
         }
 
         activeMonster?.let {
-            binding.monsterDistText.text = UnitsUtil.getDistanceText(it.value.getDistanceFromRunner(runnerState.totalDistanceM), requireContext())
+            binding.monsterDistText.text = UnitsUtil.getDistanceText(it.value.distanceToRunner, requireContext())
             binding.monsterTypeText.text = it.value.monsterType.getDisplayName(requireContext())
+            binding.monsterStaminaText.text = "${(it.value.staminaLeft * 100).roundToInt()}%"
             RunService.runParams.value!!.monsterParams[it.key]?.let {activeParam->
                 binding.monsterSpeedText.text = UnitsUtil.getSpeedText(activeParam.speedKPH, requireContext())
             }?: run {
@@ -126,6 +128,7 @@ class RunSessionFragment : Fragment() {
             binding.monsterDistText.text = getString(R.string.not_available)
             binding.monsterTypeText.text = getString(R.string.not_available)
             binding.monsterSpeedText.text = getString(R.string.not_available)
+            binding.monsterStaminaText.text = getString(R.string.not_available)
         }
     }
 
