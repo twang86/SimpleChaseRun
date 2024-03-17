@@ -1,6 +1,20 @@
 package com.pandacat.simplechaserun.constants
 
 object Constants {
+    //nav arg keys
+    const val NAV_ARG_MONSTER_INDEX = "simplechaserun.monster.index"
+
+    //monster run params
+    const val MONSTER_MAX_SPEED_KPH = 30.0
+    const val MONSTER_MIN_SPEED_KPH = 2.0
+    const val MONSTER_MAX_RUN_TIME_MINUTES = 360
+    const val MONSTER_MIN_RUN_TIME_MINUTES = 10
+    const val MONSTER_MIN_START_DISTANCE_METERS = 50L
+    const val MONSTER_MIN_START_TIME_MINUTES = 5L
+    const val MONSTER_MIN_HEAD_START_TIME_SECONDS = 5
+    const val MONSTER_MIN_RUN_DISTANCE_METERS = (MONSTER_MIN_SPEED_KPH * 1000 / 60) * MONSTER_MIN_RUN_TIME_MINUTES
+    const val MONSTER_MAX_RUN_DISTANCE_METERS = (MONSTER_MAX_SPEED_KPH * 1000 / 60) * MONSTER_MAX_RUN_TIME_MINUTES
+
     //location provider
     const val LOCATION_TIME_OUT = 10000L
     const val LOCATION_INTERVAL = 5000L

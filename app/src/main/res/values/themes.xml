@@ -5,5 +5,30 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.SimpleChaseRun" parent="Base.Theme.SimpleChaseRun" />
+    <style name="Theme.SimpleChaseRun" parent="Base.Theme.SimpleChaseRun"/>
+
+
+    <style name="ListValueText" parent="Theme.SimpleChaseRun">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">@dimen/half_unit</item>
+    </style>
+
+    <style name="MonsterParamText" parent="ListValueText">
+        <item name="android:textSize">@dimen/medium_text</item>
+    </style>
+
+    <style name="MonsterParamDescriptorText" parent="MonsterParamText">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="RunParamText" parent="ListValueText">
+        <item name="android:textSize">@dimen/large_text</item>
+        <item name="android:layout_marginBottom">@dimen/one_unit</item>
+    </style>
+
+    <style name="RunParamDescriptorText" parent="RunParamText">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

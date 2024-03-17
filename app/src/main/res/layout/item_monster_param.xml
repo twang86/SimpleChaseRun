@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/card_monster_size"
+    android:layout_height="@dimen/card_monster_size"
+    android:layout_margin="@dimen/one_unit">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/one_unit"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/half_unit">
+            <ImageView
+                android:id="@+id/monsterImage"
+                android:layout_width="@dimen/four_unit"
+                android:layout_height="@dimen/four_unit"
+                android:src="@drawable/ic_monster_simple"/>
+            <TextView
+                android:id="@+id/monsterName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/large_text"
+                android:layout_gravity="center_vertical"
+                android:textStyle="bold"
+                android:text="Monster"
+                android:layout_marginStart="@dimen/five_unit"/>
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MonsterParamDescriptorText"
+                android:text="Start:"/>
+
+            <TextView
+                android:id="@+id/monsterStartText"
+                android:layout_gravity="end"
+                style="@style/MonsterParamText"
+                android:text=".25ft"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MonsterParamDescriptorText"
+                android:text="Delay:"/>
+
+            <TextView
+                android:id="@+id/monsterDelayText"
+                android:layout_gravity="end"
+                style="@style/MonsterParamText"
+                android:text="5 sec"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MonsterParamDescriptorText"
+                android:text="Speed:"/>
+
+            <TextView
+                android:id="@+id/monsterSpeedText"
+                android:layout_gravity="end"
+                style="@style/MonsterParamText"
+                android:text="10min/mi"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/MonsterParamDescriptorText"
+                android:text="Stamina:"/>
+
+            <TextView
+                android:id="@+id/monsterStaminaText"
+                android:layout_gravity="end"
+                style="@style/MonsterParamText"
+                android:text="50mi"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

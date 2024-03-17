@@ -1,6 +1,8 @@
 package com.pandacat.simplechaserun.data.params
 
+import android.content.Context
 import com.pandacat.simplechaserun.data.monsters.MonsterType
+import com.pandacat.simplechaserun.utils.UnitsUtil
 
 data class MonsterParam(val monsterType: MonsterType,
                         val runStartType: MonsterStartType,
@@ -14,7 +16,45 @@ data class MonsterParam(val monsterType: MonsterType,
         return metersPerSecond * runnerHeadStartTimeSeconds
     }
 
+    fun getHeadStart() = UnitsUtil.getFormattedStopWatchTime(runnerHeadStartTimeSeconds * 1000L, false)
 
+    fun getStartText(context: Context) = when(runStartType) {
+            MonsterStartType.TIME->{
+                UnitsUtil.getFormattedStopWatchTime(UnitsUtil.minutesToMillis(startParam.toDouble()), false)
+            }
+            MonsterStartType.DISTANCE->{
+                UnitsUtil.getDistanceText(startParam.toDouble(), context)
+            }
+        }
 
+    fun getStaminaText(context: Context) = when(runStartType) {
+        MonsterStartType.TIME->{
+            UnitsUtil.getFormattedStopWatchTime(UnitsUtil.minutesToMillis(stamina.toDouble()), false)
+        }
+        MonsterStartType.DISTANCE->{
+            UnitsUtil.getDistanceText(stamina.toDouble(), context)
+        }
+    }
+
+    fun getTotalDistanceRunMeters() = when(runStartType)
+    {
+        MonsterStartType.TIME->{
+            speedKPH * stamina / 60.0
+        }
+        MonsterStartType.DISTANCE->{
+            stamina.toDouble()
+        }
+    }
+
+    fun getTotalTimeMillis() = when(runStartType)
+    {
+        MonsterStartType.TIME->{
+            stamina * 60 * 1000
+        }
+        MonsterStartType.DISTANCE->{
+            val metersPerMillis = speedKPH / 60.0 / 60.0
+            (stamina/metersPerMillis).toLong()
+        }
+    }
 
 }

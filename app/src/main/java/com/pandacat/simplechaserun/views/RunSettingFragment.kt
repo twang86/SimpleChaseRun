@@ -1,4 +1,71 @@
 package com.pandacat.simplechaserun.views
 
-class RunSettingFragment {
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.pandacat.simplechaserun.R
+import com.pandacat.simplechaserun.constants.Constants
+import com.pandacat.simplechaserun.data.monsters.MonsterType
+import com.pandacat.simplechaserun.data.params.RunParam
+import com.pandacat.simplechaserun.databinding.FragmentRunSettingsBinding
+import com.pandacat.simplechaserun.services.RunService
+import com.pandacat.simplechaserun.views.adapters.MonsterAdapter
+
+class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
+    private lateinit var binding: FragmentRunSettingsBinding
+    private lateinit var monsterAdapter: MonsterAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        monsterAdapter = MonsterAdapter(this)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
+    {
+        binding = FragmentRunSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val recycler = binding.monsterSelection
+        recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recycler.adapter = monsterAdapter
+
+        binding.addMonsterButton.setOnClickListener{
+            findNavController().navigate(R.id.runSettingsToMonsterSettings)
+        }
+
+        RunService.runParams.observe(viewLifecycleOwner) {
+            updateView(it)
+        }
+    }
+
+    private fun updateView(runParam: RunParam)
+    {
+        monsterAdapter.updateMonsters(runParam.monsterParams)
+        var minDistanceM = 0.0
+        var minTimeMillis = 0L
+        for(monsterParam in runParam.monsterParams.values)
+        {
+            minDistanceM += monsterParam.getTotalDistanceRunMeters()
+            minTimeMillis += monsterParam.getTotalTimeMillis()
+        }
+    }
+
+    override fun onMonsterClicked(index: Int) {
+        val bundle = bundleOf(Constants.NAV_ARG_MONSTER_INDEX to index)
+        findNavController().navigate(R.id.runSettingsToMonsterSettings, bundle)
+    }
+
+    override fun onMonsterLongClicked(index: Int) {
+        RunService.runParams.value?.let {
+            it.monsterParams.remove(index)
+        }
+    }
 }

@@ -2,6 +2,8 @@ package com.pandacat.simplechaserun.utils
 
 import com.google.android.gms.maps.model.LatLng
 import com.pandacat.simplechaserun.R
+import com.pandacat.simplechaserun.data.params.MonsterStartType
+import com.pandacat.simplechaserun.data.params.RunParam
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunnerState
 import java.util.concurrent.TimeUnit

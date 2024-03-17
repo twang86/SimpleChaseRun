@@ -23,40 +23,96 @@ object UnitsUtil {
     val MILES_TO_FEET = 5280.0
     val FEET_TO_INCHES = 12.0
 
-    fun getSpeedText(kph: Double, context: Context) : String
+    fun kphToSpeedValue(kph: Double, context: Context) : Double {
+        val useMinutesPerDist = PreferenceUtil.useMinutesPerDistance(context)
+        val useMetric = PreferenceUtil.useMetricSystem(context)
+        if (useMinutesPerDist) {
+            if (useMetric)
+                return 60 / kph
+            return 60 / (kph / MILES_TO_KM)
+        }
+        if (useMetric)
+            return kph
+        return kph / MILES_TO_KM
+    }
+
+    fun speedValueToKph(speedValue: Double, context: Context) : Double
     {
-        if (kph <= 0)
-            return "--"
+        val useMinutesPerDist = PreferenceUtil.useMinutesPerDistance(context)
+        val useMetric = PreferenceUtil.useMetricSystem(context)
+        var speedPerHour = speedValue
+        if (useMinutesPerDist) {
+            speedPerHour = 60/speedValue
+        }
+        if (useMetric)
+            return speedPerHour
+        return speedPerHour / MILES_TO_KM
+    }
+
+    fun getSpeedUnit(context: Context) : String
+    {
         val useMinutesPerDist = PreferenceUtil.useMinutesPerDistance(context)
         val useMetric = PreferenceUtil.useMetricSystem(context)
         if (useMinutesPerDist)
         {
-            val minutesPerKm = 60/kph
             if (useMetric)
-                return "${formatDouble(minutesPerKm, 2)} ${context.getString(R.string.symbol_slash)}${context.getString(R.string.unit_kilometer_short)}"
-            val minutesPerMile = 60 / (kph / MILES_TO_KM)
-            return "${formatDouble(minutesPerMile, 2)} ${context.getString(R.string.symbol_slash)}${context.getString(R.string.unit_mile_short)}"
+                return "${context.getString(R.string.symbol_slash)}${context.getString(R.string.unit_kilometer_short)}"
+            return "${context.getString(R.string.symbol_slash)}${context.getString(R.string.unit_mile_short)}"
         }
         if (useMetric)
-            return "${formatDouble(kph, 2)} ${context.getString(R.string.speed_unit_kph)}"
-        return "${formatDouble(kph / MILES_TO_KM, 2)} ${context.getString(R.string.speed_unit_mph)}"
+            return  context.getString(R.string.speed_unit_kph)
+        return context.getString(R.string.speed_unit_mph)
     }
 
-    fun getDistanceText(distanceMeters: Double, context: Context) : String
+    fun getSpeedText(kph: Double, context: Context) : String
+    {
+        if (kph <= 0)
+            return "--"
+        return "${kphToSpeedValue(kph, context)}${getSpeedUnit(context)}"
+    }
+
+    fun getBasicDistanceUnit(context: Context) : String{
+        val useMetric = PreferenceUtil.useMetricSystem(context)
+        if (useMetric)
+        {
+            return context.getString(R.string.unit_kilometer_short)
+        }
+        return context.getString(R.string.unit_mile_short)
+    }
+
+    fun metersToDistanceValue(distanceMeters: Double, context: Context) : Double
+    {
+        val useMetric = PreferenceUtil.useMetricSystem(context)
+        if (useMetric)
+            return distanceMeters / 1000
+        return distanceMeters / 1000 / MILES_TO_KM
+    }
+
+    fun distanceValueToMeters(basicValue: Double, context: Context) : Double
+    {
+        val useMetric = PreferenceUtil.useMetricSystem(context)
+        if (useMetric)
+            return basicValue * 1000
+        return basicValue * MILES_TO_KM * 1000
+    }
+
+    fun getDistanceText(distanceMeters: Double, context: Context) = getDistanceText(distanceMeters, false, context)
+
+    fun getDistanceText(distanceMeters: Double, useBasicUnits: Boolean, context: Context) : String
     {
         val useMetric = PreferenceUtil.useMetricSystem(context)
         if (useMetric)
         {
-            if (distanceMeters>1000)
-                return "${formatDouble(distanceMeters/1000, 3)}${context.getString(R.string.unit_kilometer_short)}"
-            return "${formatDouble(distanceMeters, 2)}${context.getString(R.string.unit_meter_short)}"
+            if (distanceMeters<=1000 && !useBasicUnits)
+                return "${formatDouble(distanceMeters, 2)}${context.getString(R.string.unit_meter_short)}"
+            return "${formatDouble(distanceMeters/1000, 3)}${context.getString(R.string.unit_kilometer_short)}"
         }
         else
         {
             val distanceFt = distanceMeters * METERS_TO_FEET
-            if (distanceFt > 60) // about .01 mile
-                return "${formatDouble(distanceFt/ MILES_TO_FEET, 3)}${context.getString(R.string.unit_mile_short)}"
-            return "${formatDouble(distanceFt, 2)}${context.getString(R.string.unit_feet_short)}"
+            if (distanceFt <= 60 && !useBasicUnits) // about .01 mile
+                return "${formatDouble(distanceFt, 2)}${context.getString(R.string.unit_feet_short)}"
+            return "${formatDouble(distanceFt/ MILES_TO_FEET, 3)}${context.getString(R.string.unit_mile_short)}"
         }
     }
 

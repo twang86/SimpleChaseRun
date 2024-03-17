@@ -29,4 +29,22 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/runSettingsFragment"
+        android:name="com.pandacat.simplechaserun.views.RunSettingFragment"
+        android:label="Run Settings">
+
+        <action
+            android:id="@+id/runSettingsToMonsterSettings"
+            app:destination="@id/monsterSettingsFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/monsterSettingsFragment"
+        android:name="com.pandacat.simplechaserun.views.MonsterSettingFragment"
+        android:label="Monster Settings">
+
+    </fragment>
+
 </navigation>

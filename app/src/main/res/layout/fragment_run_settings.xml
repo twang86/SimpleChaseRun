@@ -1,12 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/monsterSelect"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/button_bottom_height_with_margin"
+        android:layout_marginTop="@dimen/one_unit"
+        android:layout_marginStart="@dimen/one_unit"
+        android:layout_marginEnd="@dimen/one_unit"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="@dimen/xlarge_text"
+            android:layout_marginBottom="@dimen/one_unit"
+            android:text="@string/run_setting_title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/large_text"
+            android:layout_marginBottom="@dimen/one_unit"
+            android:text="Monsters" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/RunParamDescriptorText"
+                android:text="Total:"/>
+
+            <TextView
+                android:id="@+id/totalMonstersText"
+                style="@style/RunParamText"
+                android:layout_gravity="end"
+                android:text="2"/>
+
+        </FrameLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/monsterSelection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/addMonsterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_standard_height"
+            android:layout_gravity="end"
+            android:text="Add Monster"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/large_text"
+            android:layout_marginTop="@dimen/half_unit"
+            android:layout_marginBottom="@dimen/one_unit"
+            android:text="Run Stats" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/RunParamDescriptorText"
+                android:text="Min Distance:"/>
+
+            <TextView
+                android:id="@+id/minRunDistanceText"
+                style="@style/RunParamText"
+                android:layout_gravity="end"
+                android:text="10 mi"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/RunParamDescriptorText"
+                android:text="Min Time:"/>
+
+            <TextView
+                android:id="@+id/minRunTimeText"
+                style="@style/RunParamText"
+                android:layout_gravity="end"
+                android:text="30 min"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/startRunButton"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_bottom_height"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/half_unit"
+        android:text="@string/run_setting_start_run"/>
+
+</FrameLayout>

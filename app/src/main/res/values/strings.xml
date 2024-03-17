@@ -17,6 +17,8 @@
     <string name="permissions_button_text">Grant Permission</string>
     <string name="not_available">N/A</string>
 
+    <string name="error_input_invalid">Invalid Input!</string>
+
     <string name="unit_meter_short">m</string>
     <string name="unit_kilometer_short">km</string>
     <string name="unit_mile_short">mi</string>
@@ -26,6 +28,12 @@
     <string name="symbol_slash">/</string>
     <string name="speed_unit_kph">kph</string>
     <string name="speed_unit_mph">mph</string>
+
+    <string name="run_setting_title">Run Settings</string>
+    <string name="run_setting_start_run">Start Run</string>
+
+    <string name="monster_setting_start_distance">Distance</string>
+    <string name="monster_setting_start_time">Run Time</string>
 
     <string name="monster_name_zombie">Zombie</string>
     <string name="monster_name_infected">Infected</string>
