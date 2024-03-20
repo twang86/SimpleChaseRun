@@ -11,6 +11,10 @@ data class MonsterParam(val monsterType: MonsterType,
                         val stamina: Long, //m for DISTANCE, minutes for TIME
                         val speedKPH: Double,
     ){
+
+    override fun toString(): String {
+        return "monster: $monsterType, runStartType: $runStartType, startParam: $startParam, runnerHeadStart $runnerHeadStartTimeSeconds, stamina: $stamina, speedKph: $speedKPH "
+    }
     fun getStartingDistanceToRunnerMeters(): Double {
         val metersPerSecond = (speedKPH * 1000) / (60 * 60)
         return metersPerSecond * runnerHeadStartTimeSeconds

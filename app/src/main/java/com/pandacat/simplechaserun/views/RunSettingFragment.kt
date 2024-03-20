@@ -1,6 +1,7 @@
 package com.pandacat.simplechaserun.views
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,11 @@ import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.RunParam
+import com.pandacat.simplechaserun.data.states.RunState
+import com.pandacat.simplechaserun.data.states.RunnerState
 import com.pandacat.simplechaserun.databinding.FragmentRunSettingsBinding
 import com.pandacat.simplechaserun.services.RunService
+import com.pandacat.simplechaserun.utils.UnitsUtil
 import com.pandacat.simplechaserun.views.adapters.MonsterAdapter
 
 class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
@@ -41,7 +45,16 @@ class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
             findNavController().navigate(R.id.runSettingsToMonsterSettings)
         }
 
+        binding.startRunButton.setOnClickListener{
+            val command = bundleOf(Constants.NAV_ARG_START_RUN_COMMAND to true)
+            findNavController().navigate(R.id.globalToRunSession, command)
+        }
+
         RunService.runParams.observe(viewLifecycleOwner) {
+            updateView(it)
+        }
+
+        RunService.runParams.value?.let {
             updateView(it)
         }
     }
@@ -51,11 +64,14 @@ class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
         monsterAdapter.updateMonsters(runParam.monsterParams)
         var minDistanceM = 0.0
         var minTimeMillis = 0L
-        for(monsterParam in runParam.monsterParams.values)
+        for(monsterParam in runParam.monsterParams)
         {
             minDistanceM += monsterParam.getTotalDistanceRunMeters()
             minTimeMillis += monsterParam.getTotalTimeMillis()
         }
+        binding.totalMonstersText.text = runParam.monsterParams.count().toString()
+        binding.minRunDistanceText.text = UnitsUtil.getDistanceText(minDistanceM, requireContext())
+        binding.minRunTimeText.text = UnitsUtil.getFormattedStopWatchTime(minTimeMillis, false)
     }
 
     override fun onMonsterClicked(index: Int) {
@@ -64,8 +80,6 @@ class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
     }
 
     override fun onMonsterLongClicked(index: Int) {
-        RunService.runParams.value?.let {
-            it.monsterParams.remove(index)
-        }
+        RunService.runParams.value?.monsterParams?.removeAt(index)
     }
 }

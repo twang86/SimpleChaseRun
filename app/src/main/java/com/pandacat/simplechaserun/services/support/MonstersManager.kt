@@ -29,52 +29,48 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
         //update monsters
         //only one monster can active at any time
         //this function assumes that the monster list is sorted from earliest monster to latest monster
-        for(monsterParam in runParam.monsterParams.entries)
-        {
-            //if any monsters are already active, ignore
-            if (activeMonster != null)
-                break
+        runParam.monsterParams.forEachIndexed{key, monsterParam->
 
             //checks if monsters should be active based on params
-            val shouldBeActive: Boolean = when(monsterParam.value.runStartType) {
+            val shouldBeActive: Boolean = when(monsterParam.runStartType) {
                 MonsterStartType.DISTANCE->
-                    runnerState.totalDistanceM >= monsterParam.value.startParam
+                    runnerState.totalDistanceM >= monsterParam.startParam
                 MonsterStartType.TIME->
-                    UnitsUtil.millisToMinutes(runnerState.totalTimeMillis) >= monsterParam.value.startParam
+                    UnitsUtil.millisToMinutes(runnerState.totalTimeMillis) >= monsterParam.startParam
             }
 
             if (shouldBeActive)
             {
-                var current = monsterStates[monsterParam.key]
+                var current = monsterStates[key]
                 //check if monster hasn't been started yet
                 if (current == null || current.state == MonsterState.State.NOT_STARTED)
                 {
                     current = MonsterState(
-                        monsterParam.value.monsterType,
+                        monsterParam.monsterType,
                         MonsterState.State.ACTIVE,
-                        monsterParam.value.getStartingDistanceToRunnerMeters(),
+                        monsterParam.getStartingDistanceToRunnerMeters(),
                         1F)
                     listener.onMonsterStarted(current.monsterType)
-                    monsterStartingPositions[monsterParam.key] = runnerState
+                    monsterStartingPositions[key] = runnerState
                     Log.i(TAG, "creating monster: $current")
                 }
 
                 if (current.state == MonsterState.State.ACTIVE)
                 {
-                    val startingState = monsterStartingPositions[monsterParam.key]!!
+                    val startingState = monsterStartingPositions[key]!!
                     val timeSinceStartMillis = runnerState.totalTimeMillis - startingState.totalTimeMillis
-                    val metersPerSecond = (monsterParam.value.speedKPH * 1000) / (60 * 60)
+                    val metersPerSecond = (monsterParam.speedKPH * 1000) / (60 * 60)
                     val metersPerMillis = metersPerSecond / 1000
                     val totalDistanceTraveled = metersPerMillis * timeSinceStartMillis
                     val runnerTotalDistanceTravelled = runnerState.totalDistanceM - startingState.totalDistanceM
-                    val distanceToRunnerMeters = runnerTotalDistanceTravelled + monsterParam.value.getStartingDistanceToRunnerMeters() - totalDistanceTraveled
-                    val staminaLeft = when(monsterParam.value.runStartType)
+                    val distanceToRunnerMeters = runnerTotalDistanceTravelled + monsterParam.getStartingDistanceToRunnerMeters() - totalDistanceTraveled
+                    val staminaLeft = when(monsterParam.runStartType)
                     {
                         MonsterStartType.DISTANCE -> {
-                            if (monsterParam.value.stamina <= totalDistanceTraveled) 0F else 1 - (totalDistanceTraveled / monsterParam.value.stamina).toFloat()
+                            if (monsterParam.stamina <= totalDistanceTraveled) 0F else 1 - (totalDistanceTraveled / monsterParam.stamina).toFloat()
                         }
                         MonsterStartType.TIME -> {
-                            if (monsterParam.value.stamina <= timeSinceStartMillis / 1000F / 60F) 0F else 1 - (timeSinceStartMillis / 1000F / 60F) / monsterParam.value.stamina
+                            if (monsterParam.stamina <= timeSinceStartMillis / 1000F / 60F) 0F else 1 - (timeSinceStartMillis / 1000F / 60F) / monsterParam.stamina
                         }
                     }
 
@@ -101,7 +97,7 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
                         val secondsUntilCapture = distanceToRunnerMeters/metersPerSecond
                         listener.onMonsterMoved(current.monsterType, secondsUntilCapture.roundToLong())
                     }
-                    monsterStates[monsterParam.key] = current
+                    monsterStates[key] = current
                 }
             }
         }
@@ -113,9 +109,8 @@ class MonstersManager(val listener: MonsterListener): RunManagerBase {
         params = runParam
         monsterStates.clear()
         monsterStartingPositions.clear()
-        for(monsterParam in runParam.monsterParams.entries)
-        {
-            monsterStates[monsterParam.key] = MonsterState.makeInitial(monsterParam.value.monsterType)
+        runParam.monsterParams.forEachIndexed{index, monsterParam->
+            monsterStates[index] = MonsterState.makeInitial(monsterParam.monsterType)
         }
     }
 

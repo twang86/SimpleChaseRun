@@ -3,6 +3,7 @@ package com.pandacat.simplechaserun.constants
 object Constants {
     //nav arg keys
     const val NAV_ARG_MONSTER_INDEX = "simplechaserun.monster.index"
+    const val NAV_ARG_START_RUN_COMMAND = "simplechaserun.start.run.nav.args"
 
     //monster run params
     const val MONSTER_MAX_SPEED_KPH = 30.0

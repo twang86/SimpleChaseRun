@@ -1,6 +1,7 @@
 package com.pandacat.simplechaserun.utils
 
 import android.content.Context
+import android.util.Log
 import com.pandacat.simplechaserun.R
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -46,7 +47,7 @@ object UnitsUtil {
         }
         if (useMetric)
             return speedPerHour
-        return speedPerHour / MILES_TO_KM
+        return speedPerHour * MILES_TO_KM
     }
 
     fun getSpeedUnit(context: Context) : String
@@ -68,7 +69,7 @@ object UnitsUtil {
     {
         if (kph <= 0)
             return "--"
-        return "${kphToSpeedValue(kph, context)}${getSpeedUnit(context)}"
+        return "${formatDouble(kphToSpeedValue(kph, context), 2)}${getSpeedUnit(context)}"
     }
 
     fun getBasicDistanceUnit(context: Context) : String{

@@ -68,6 +68,10 @@ class RunSessionFragment : Fragment() {
             marker?.showInfoWindow()
             it.moveCamera(CameraUpdateFactory.newLatLngZoom(options.position, 16.0f))
         }
+        arguments?.let {
+            if (it.getBoolean(Constants.NAV_ARG_START_RUN_COMMAND, false))
+                sendCommandToService(Constants.START_RUNNING_COMMAND)
+        }
     }
 
     private fun updateControls()

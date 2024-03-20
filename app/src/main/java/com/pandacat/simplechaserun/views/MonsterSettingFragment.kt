@@ -3,6 +3,7 @@ package com.pandacat.simplechaserun.views
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.MonsterParam
 import com.pandacat.simplechaserun.data.params.MonsterStartType
+import com.pandacat.simplechaserun.data.params.RunParam
 import com.pandacat.simplechaserun.databinding.FragmentMonsterSettingsBinding
 import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.UnitsUtil
@@ -57,23 +59,22 @@ class MonsterSettingFragment : Fragment() {
         val monsterArray = arrayListOf<String>()
         val monsterValues = MonsterType.values()
         var monsterIndex = 0
-        for (monsterType in monsterValues) {
+        monsterValues.forEachIndexed{index, monsterType ->
             monsterArray.add(monsterType.getDisplayName(requireContext()))
             if (monsterType == monsterParam.monsterType)
-                break
-            monsterIndex++
+                monsterIndex = index
         }
+
         val monsterSpinnerAdapter =
             ArrayAdapter(requireContext(), R.layout.item_large_text, monsterArray)
 
         val startTypeArray = arrayListOf<String>()
         val startTypeValues = MonsterStartType.values()
         var startTypeIndex = 0
-        for (startType in startTypeValues) {
+        startTypeValues.forEachIndexed {index, startType->
             startTypeArray.add(startType.getFriendlyName(requireContext()))
             if (startType == monsterParam.runStartType)
-                break
-            startTypeIndex++
+                startTypeIndex = index
         }
         val startTypeSpinnerAdapter =
             ArrayAdapter(requireContext(), R.layout.item_large_text, startTypeArray)
@@ -83,8 +84,12 @@ class MonsterSettingFragment : Fragment() {
         monsterSpinner.setSelection(monsterIndex)
         monsterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                val monsterType = monsterValues[pos]
-                setParamValues(monsterType.getDefaultParams(monsterParam.runStartType))
+                if (monsterIndex != pos)
+                {
+                    Log.i("monsterSettings", "onMonsterSelected: $pos")
+                    val monsterType = monsterValues[pos]
+                    setParamValues(monsterType.getDefaultParams(monsterParam.runStartType))
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -93,11 +98,15 @@ class MonsterSettingFragment : Fragment() {
 
         val startTypeSpinner = binding.startTypeSpinner
         startTypeSpinner.adapter = startTypeSpinnerAdapter
+        startTypeSpinner.onItemSelectedListener = null
         startTypeSpinner.setSelection(startTypeIndex)
         startTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                val startType = startTypeValues[pos]
-                setParamValues(monsterParam.monsterType.getDefaultParams(startType))
+                if (startTypeIndex != pos) {
+                    Log.i("monsterSettings", "onStartTypeSelected: $pos")
+                    val startType = startTypeValues[pos]
+                    setParamValues(monsterParam.monsterType.getDefaultParams(startType))
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -105,7 +114,6 @@ class MonsterSettingFragment : Fragment() {
         }
 
         val startValueEdit = binding.startEdit
-        val startValueUnit = binding.startValueUnit
 
         startValueEdit.setText(
             when (monsterParam.runStartType) {
@@ -124,7 +132,7 @@ class MonsterSettingFragment : Fragment() {
             }
         )
 
-        startValueUnit.text = when (monsterParam.runStartType) {
+        binding.startHolder.hint = when (monsterParam.runStartType) {
             MonsterStartType.TIME -> {
                 requireContext().getString(R.string.unit_minutes_short)
             }
@@ -134,56 +142,19 @@ class MonsterSettingFragment : Fragment() {
             }
         }
 
-        val minStamina: Float = when (monsterParam.runStartType) {
-            MonsterStartType.TIME -> Constants.MONSTER_MIN_RUN_TIME_MINUTES.toFloat()
-            MonsterStartType.DISTANCE -> Constants.MONSTER_MIN_RUN_DISTANCE_METERS.toFloat()
-        }
-
-        val maxStamina: Float = when (monsterParam.runStartType) {
-            MonsterStartType.TIME -> Constants.MONSTER_MAX_RUN_TIME_MINUTES.toFloat()
-            MonsterStartType.DISTANCE -> Constants.MONSTER_MAX_RUN_DISTANCE_METERS.toFloat()
-        }
-
-        val staminaSlider = binding.staminaSlider
-        val staminaEdit = binding.staminaEdit
-        staminaSlider.valueFrom = minStamina
-        staminaSlider.valueTo = maxStamina
-        staminaSlider.stepSize = 1f
-        staminaSlider.value = monsterParam.stamina.toFloat()
-
         binding.startHolder.hint = when(monsterParam.runStartType)
         {
-            MonsterStartType.TIME -> UnitsUtil.getFormattedStopWatchTime(monsterParam.stamina * 60 * 1000)
-            MonsterStartType.DISTANCE -> UnitsUtil.getDistanceText(monsterParam.stamina.toDouble(), requireContext())
+            MonsterStartType.TIME -> requireContext().getString(R.string.unit_minutes_short)
+            MonsterStartType.DISTANCE -> UnitsUtil.getBasicDistanceUnit(requireContext())
         }
+
+        val staminaEdit = binding.staminaEdit
 
         staminaEdit.setText(when(monsterParam.runStartType)
         {
-            MonsterStartType.TIME -> UnitsUtil.getFormattedStopWatchTime(monsterParam.stamina * 60 * 1000)
-            MonsterStartType.DISTANCE -> UnitsUtil.getDistanceText(monsterParam.stamina.toDouble(), requireContext())
+            MonsterStartType.TIME -> monsterParam.stamina.toString()
+            MonsterStartType.DISTANCE -> UnitsUtil.formatDouble(UnitsUtil.metersToDistanceValue(monsterParam.stamina.toDouble(), requireContext()), 2)
         })
-        staminaEdit.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(text: Editable?) {
-                text?.let {
-                    try{
-                        val num = it.toString().toFloat()
-                        staminaSlider.value = num
-                    } catch (e:Exception)
-                    {
-                        //nothing
-                    }
-                }
-            }
-        })
-        staminaSlider.addOnChangeListener{_,value,_->
-            staminaEdit.setText(value.toString())
-        }
 
         binding.staminaHolder.hint = when(monsterParam.runStartType)
         {
@@ -191,34 +162,9 @@ class MonsterSettingFragment : Fragment() {
             MonsterStartType.DISTANCE -> UnitsUtil.getBasicDistanceUnit(requireContext())
         }
 
-        val speedSlider = binding.speedSlider
         val speedText = binding.speedEdit
-        speedSlider.valueFrom = Constants.MONSTER_MIN_SPEED_KPH.toFloat()
-        speedSlider.valueTo = Constants.MONSTER_MAX_SPEED_KPH.toFloat()
-        speedSlider.value = monsterParam.speedKPH.toFloat()
-        speedText.setText(UnitsUtil.getSpeedText(monsterParam.speedKPH, requireContext()))
-        speedText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(text: Editable?) {
-                text?.let {
-                    try{
-                        val num = it.toString().toFloat()
-                        speedSlider.value = num
-                    } catch (e:Exception)
-                    {
-                        //nothing
-                    }
-                }
-            }
-        })
-        speedSlider.addOnChangeListener{_,value,_->
-            speedText.setText(UnitsUtil.getSpeedText(value.toDouble(), requireContext()))
-        }
+        val speedValue = UnitsUtil.kphToSpeedValue(monsterParam.speedKPH, requireContext())
+        speedText.setText(UnitsUtil.formatDouble(speedValue, 2))
 
         binding.speedHolder.hint = UnitsUtil.getSpeedUnit(requireContext())
 
@@ -231,7 +177,21 @@ class MonsterSettingFragment : Fragment() {
 
         binding.deleteMonsterButton.setOnClickListener{
             getSelectedMonsterIndex()?.let {
-                RunService.runParams.value!!.monsterParams.remove(it)
+                RunService.runParams.value!!.monsterParams.removeAt(it)
+                stopSelf()
+            }
+        }
+
+        binding.saveMonsterButton.setOnClickListener{
+            val newParams = getMonsterParams()
+            newParams?.let { params->
+                val monsterParams = RunService.runParams.value!!.monsterParams
+                getSelectedMonsterIndex()?.let {
+                    monsterParams[it] = params
+                } ?: run {
+                    monsterParams.add(params)
+                }
+                RunService.runParams.value = RunParam(monsterParams)
                 stopSelf()
             }
         }
@@ -279,7 +239,17 @@ class MonsterSettingFragment : Fragment() {
             null
         }
 
-        if (staminaValue == null){
+        val minStamina: Float = when (startType) {
+            MonsterStartType.TIME -> Constants.MONSTER_MIN_RUN_TIME_MINUTES.toFloat()
+            MonsterStartType.DISTANCE -> (Constants.MONSTER_MIN_RUN_DISTANCE_METERS/1000).toFloat()
+        }
+
+        val maxStamina: Float = when (startType) {
+            MonsterStartType.TIME -> Constants.MONSTER_MAX_RUN_TIME_MINUTES.toFloat()
+            MonsterStartType.DISTANCE -> (Constants.MONSTER_MAX_RUN_DISTANCE_METERS/1000).toFloat()
+        }
+
+        if (staminaValue == null || minStamina > staminaValue || maxStamina < staminaValue){
             binding.staminaHolder.error = requireContext().getString(R.string.error_input_invalid)
             return null
         }
@@ -307,6 +277,12 @@ class MonsterSettingFragment : Fragment() {
         }
 
         val speedValueKph = UnitsUtil.speedValueToKph(speedValue, requireContext())
+
+        if (speedValueKph > Constants.MONSTER_MAX_SPEED_KPH || speedValueKph < Constants.MONSTER_MIN_SPEED_KPH)
+        {
+            binding.speedHolder.error = requireContext().getString(R.string.error_input_invalid)
+            return null
+        }
 
         return MonsterParam(monsterType, startType, trueStartValue, Constants.MONSTER_MIN_HEAD_START_TIME_SECONDS, trueStaminaValue, speedValueKph)
     }

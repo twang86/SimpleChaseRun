@@ -12,8 +12,7 @@ import com.pandacat.simplechaserun.data.params.MonsterParam
 import com.pandacat.simplechaserun.utils.UnitsUtil
 
 class MonsterAdapter(val listener: Listener): Adapter<MonsterAdapter.MonsterViewHolder>() {
-    private val monsterParams = arrayListOf<MonsterParam>()
-    private val monsterIds = arrayListOf<Int>()
+    private var monsterParams = arrayListOf<MonsterParam>()
 
     interface Listener{
         fun onMonsterClicked(index : Int)
@@ -32,15 +31,9 @@ class MonsterAdapter(val listener: Listener): Adapter<MonsterAdapter.MonsterView
         }
     }
 
-    fun updateMonsters(params: HashMap<Int, MonsterParam>)
+    fun updateMonsters(params: ArrayList<MonsterParam>)
     {
-        monsterParams.clear()
-        monsterIds.clear()
-        for(entry in params)
-        {
-            monsterParams.add(entry.value)
-            monsterIds.add(entry.key)
-        }
+        monsterParams = params
         notifyDataSetChanged()
     }
 

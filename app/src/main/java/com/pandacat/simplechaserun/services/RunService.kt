@@ -39,16 +39,16 @@ class RunService: Service(){
         val runState: MutableLiveData<RunState> = MutableLiveData(RunState(RunState.State.NOT_STARTED, SystemClock.elapsedRealtime()))
         val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0.0,0))
         val monsterStates: MutableLiveData<HashMap<Int, MonsterState>> = MutableLiveData(hashMapOf())
-        val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(hashMapOf()))
+        val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(arrayListOf()))
     }
 
 
     //todo delete this later!
     private fun createTestParams()
     {
-        val monsterParams = hashMapOf<Int, MonsterParam>()
-        monsterParams[1] = MonsterParam(MonsterType.T_REX, MonsterStartType.TIME, 1, 5, 2, 8.8)
-        monsterParams[2] = MonsterParam(MonsterType.T_REX, MonsterStartType.DISTANCE, 4000, 5, 3200, 8.8)
+        val monsterParams = arrayListOf<MonsterParam>()
+        monsterParams.add(MonsterParam(MonsterType.T_REX, MonsterStartType.TIME, 1, 5, 2, 8.8))
+        monsterParams.add(MonsterParam(MonsterType.T_REX, MonsterStartType.DISTANCE, 4000, 5, 3200, 8.8))
         runParams.value = RunParam(monsterParams)
     }
 
