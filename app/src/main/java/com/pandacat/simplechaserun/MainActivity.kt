@@ -7,7 +7,9 @@ import android.util.Log
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.pandacat.simplechaserun.constants.Constants
+import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.databinding.ActivityMainBinding
+import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.PermissionUtil
 import com.pandacat.simplechaserun.utils.PreferenceUtil
 
@@ -36,7 +38,15 @@ class MainActivity : AppCompatActivity() {
         if (navController.currentDestination?.id == R.id.runSessionFragment)
             return
         if(intent?.action == Constants.ACTION_SHOW_TRACKING_FRAGMENT) {
+            navController.popBackStack()
             navController.navigate(R.id.globalToRunSession)
+            return
+        }
+        RunService.runState.value?.let {
+            if(it.activeState == RunState.State.ACTIVE || it.activeState == RunState.State.PAUSED) {
+                navController.popBackStack()
+                navController.navigate(R.id.globalToRunSession)
+            }
         }
     }
 }

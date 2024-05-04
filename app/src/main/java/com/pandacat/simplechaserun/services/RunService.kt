@@ -40,6 +40,13 @@ class RunService: Service(){
         val runnerState: MutableLiveData<RunnerState> = MutableLiveData(RunnerState(LatLng(0.0, 0.0), 0.0,0))
         val monsterStates: MutableLiveData<HashMap<Int, MonsterState>> = MutableLiveData(hashMapOf())
         val runParams: MutableLiveData<RunParam> = MutableLiveData(RunParam(arrayListOf()))
+
+        fun resetRun()
+        {
+            runState.value = RunState(RunState.State.NOT_STARTED, SystemClock.elapsedRealtime())
+            runnerState.value = RunnerState(LatLng(0.0, 0.0), 0.0,0)
+            monsterStates.value = hashMapOf()
+        }
     }
 
 
@@ -99,7 +106,7 @@ class RunService: Service(){
         if (curState != RunState.State.NOT_STARTED && curState != RunState.State.PAUSED)
             return
         if(curState == RunState.State.NOT_STARTED) {
-            createTestParams()
+            //createTestParams()
             monstersManager.initMonsters(runParams.value!!)
             monsterStates.value = monstersManager.getCurrentStates()
             startForegroundService()

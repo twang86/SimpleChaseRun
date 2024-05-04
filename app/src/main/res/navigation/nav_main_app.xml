@@ -10,15 +10,22 @@
 
     <action
         android:id="@+id/globalToRunSession"
-        app:destination="@id/runSessionFragment"
-        app:popUpTo="@id/runSessionFragment"
-        app:popUpToInclusive="false"/>
+        app:destination="@id/runSessionFragment" />
 
+    <action
+        android:id="@+id/globalToRunSettings"
+        app:destination="@id/runSettingsFragment"/>
 
     <fragment
         android:id="@+id/runSessionFragment"
         android:name="com.pandacat.simplechaserun.views.RunSessionFragment"
         android:label="Run Session">
+
+        <action
+            android:id="@+id/runSessionToRunSettings"
+            app:destination="@id/runSettingsFragment"
+            app:popUpTo="@id/runSessionFragment"
+            app:popUpToInclusive="true"/>
 
     </fragment>
 
@@ -33,10 +40,15 @@
         android:id="@+id/runSettingsFragment"
         android:name="com.pandacat.simplechaserun.views.RunSettingFragment"
         android:label="Run Settings">
+        <action
+            android:id="@+id/runSettingToRunSession"
+            app:destination="@id/runSessionFragment"
+            app:popUpTo="@id/runSettingsFragment"
+            app:popUpToInclusive="true"/>
 
         <action
             android:id="@+id/runSettingsToMonsterSettings"
-            app:destination="@id/monsterSettingsFragment"/>
+            app:destination="@id/monsterSettingsFragment" />
 
     </fragment>
 

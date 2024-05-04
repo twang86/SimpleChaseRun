@@ -3,6 +3,7 @@ package com.pandacat.simplechaserun.views
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,18 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.pandacat.simplechaserun.R
 import com.pandacat.simplechaserun.constants.Constants
 import com.pandacat.simplechaserun.data.states.MonsterState
 import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.databinding.FragmentRunSessionBinding
 import com.pandacat.simplechaserun.services.RunService
-import com.pandacat.simplechaserun.utils.BitmapUtil
 import com.pandacat.simplechaserun.utils.PermissionUtil
-import com.pandacat.simplechaserun.utils.RunUtil
 import com.pandacat.simplechaserun.utils.UnitsUtil
 import kotlin.math.roundToInt
 
@@ -36,6 +33,13 @@ class RunSessionFragment : Fragment() {
         super.onCreate(savedInstanceState)
         RunService.runState.observe(this) {
             updateControls()
+            RunService.runState.value?.let {
+                Log.i("navDebug", "update view run state: ${it.activeState} ")
+                if (it.activeState == RunState.State.STOPPED)
+                {
+                    gotoSettings()
+                }
+            }
         }
         RunService.runnerState.observe(this) {
             updateView()
@@ -53,21 +57,21 @@ class RunSessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync{
-            map = it
-
-            val options = MarkerOptions()
-                .position(LatLng(39.161607200033515, -77.27608037908082))
-                .title("Test Marker")
-
-            BitmapUtil.getBitmapDescFromVector(requireContext(), R.drawable.ic_directions_run)?.let {icon->
-                options.icon(icon)
-            }
-
-            marker = it.addMarker(options)
-            marker?.showInfoWindow()
-            it.moveCamera(CameraUpdateFactory.newLatLngZoom(options.position, 16.0f))
-        }
+//        binding.mapView.getMapAsync{
+//            map = it
+//
+//            val options = MarkerOptions()
+//                .position(LatLng(39.161607200033515, -77.27608037908082))
+//                .title("Test Marker")
+//
+//            BitmapUtil.getBitmapDescFromVector(requireContext(), R.drawable.ic_directions_run)?.let {icon->
+//                options.icon(icon)
+//            }
+//
+//            marker = it.addMarker(options)
+//            marker?.showInfoWindow()
+//            it.moveCamera(CameraUpdateFactory.newLatLngZoom(options.position, 16.0f))
+//        }
         arguments?.let {
             if (it.getBoolean(Constants.NAV_ARG_START_RUN_COMMAND, false))
                 sendCommandToService(Constants.START_RUNNING_COMMAND)
@@ -111,13 +115,16 @@ class RunSessionFragment : Fragment() {
 
 
         var activeMonster: Map.Entry<Int, MonsterState>? = null
+        var monstersLeft = 0
         for(entry in monsterState.entries)
         {
             if (entry.value.state == MonsterState.State.ACTIVE) {
                 activeMonster = entry
-                break
             }
+            if (entry.value.state == MonsterState.State.NOT_STARTED)
+                monstersLeft++
         }
+        binding.monsterLeftText.text = getString(R.string.monster_left_text, monstersLeft)
 
         activeMonster?.let {
             binding.monsterDistText.text = UnitsUtil.getDistanceText(it.value.distanceToRunner, requireContext())
@@ -158,12 +165,13 @@ class RunSessionFragment : Fragment() {
             requireContext().startService(it)
         }
 
+    private fun gotoSettings()
+    {
+        findNavController().navigate(R.id.runSessionToRunSettings)
+    }
     override fun onResume() {
         super.onResume()
         binding.mapView.onResume()
-
-        if (RunService.runState.value!!.activeState == RunState.State.STOPPED)
-            findNavController().popBackStack()
     }
 
     override fun onPause() {

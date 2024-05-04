@@ -2,6 +2,7 @@ package com.pandacat.simplechaserun.views
 
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,13 @@ class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        //todo this code needs to be in RunFinishedFragment
+        if (RunService.runState.value!!.activeState == RunState.State.STOPPED)
+            RunService.resetRun()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recycler = binding.monsterSelection
@@ -47,7 +55,7 @@ class RunSettingFragment: Fragment(), MonsterAdapter.Listener {
 
         binding.startRunButton.setOnClickListener{
             val command = bundleOf(Constants.NAV_ARG_START_RUN_COMMAND to true)
-            findNavController().navigate(R.id.globalToRunSession, command)
+            findNavController().navigate(R.id.runSettingToRunSession, command)
         }
 
         RunService.runParams.observe(viewLifecycleOwner) {

@@ -1,6 +1,7 @@
 package com.pandacat.simplechaserun.views
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.pandacat.simplechaserun.R
@@ -17,6 +19,7 @@ import com.pandacat.simplechaserun.data.monsters.MonsterType
 import com.pandacat.simplechaserun.data.params.MonsterParam
 import com.pandacat.simplechaserun.data.params.MonsterStartType
 import com.pandacat.simplechaserun.data.params.RunParam
+import com.pandacat.simplechaserun.data.states.RunState
 import com.pandacat.simplechaserun.databinding.FragmentMonsterSettingsBinding
 import com.pandacat.simplechaserun.services.RunService
 import com.pandacat.simplechaserun.utils.UnitsUtil
@@ -251,6 +254,7 @@ class MonsterSettingFragment : Fragment() {
 
         if (staminaValue == null || minStamina > staminaValue || maxStamina < staminaValue){
             binding.staminaHolder.error = requireContext().getString(R.string.error_input_invalid)
+            Toast.makeText(requireContext(), "min: $minStamina max: $maxStamina", Toast.LENGTH_SHORT).show()
             return null
         }
 
